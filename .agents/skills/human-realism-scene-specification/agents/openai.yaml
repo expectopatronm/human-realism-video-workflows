@@ -1,0 +1,3 @@
+interface:
+  display_name: "Human Realism Scene Specification"
+  short_description: "Plan human motion from images and scene intent"

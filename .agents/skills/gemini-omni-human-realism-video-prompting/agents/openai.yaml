@@ -1,0 +1,3 @@
+interface:
+  display_name: "Gemini Omni Human Realism Video Prompting"
+  short_description: "Turn a scene specification into an Omni prompt"
