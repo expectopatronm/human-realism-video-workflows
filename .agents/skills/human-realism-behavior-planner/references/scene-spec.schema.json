@@ -1,0 +1,789 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://local.codex/human-realism-behavior-planner/scene-spec.schema.json",
+  "title": "Human Realism Behavior Plan",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "scene_id", "references", "input_plan", "motion_sources", "subjects", "intent", "realism_selection", "behavior_plan", "spatial_plan", "scene_physics", "motion_schedule", "intent_resolutions", "global_rules", "components", "assumptions", "unresolved_conflicts"],
+  "properties": {
+    "schema_version": {"const": "1.7"},
+    "scene_id": {"$ref": "#/$defs/id"},
+    "references": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "source", "observation", "confidence"],
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "source": {"type": "string", "minLength": 1},
+          "observation": {"type": "string", "minLength": 1},
+          "confidence": {"$ref": "#/$defs/confidence"}
+        }
+      }
+    },
+    "input_plan": {"$ref": "#/$defs/inputPlan"},
+    "motion_sources": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "source", "role", "duration_seconds", "observation", "excluded_attributes", "confidence"],
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "source": {"type": "string", "minLength": 1},
+          "role": {"enum": ["motion_only", "motion_and_timing", "full_scene_reference"]},
+          "duration_seconds": {"type": ["number", "null"], "exclusiveMinimum": 0},
+          "observation": {"type": "string", "minLength": 1},
+          "excluded_attributes": {"$ref": "#/$defs/textList"},
+          "confidence": {"$ref": "#/$defs/confidence"}
+        }
+      }
+    },
+    "subjects": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "reference_ids", "identity_constraints", "identity_anchors", "view_coverage", "unseen_region_policy", "appearance_changes"],
+        "properties": {
+          "id": {"$ref": "#/$defs/id"},
+          "reference_ids": {"$ref": "#/$defs/idList"},
+          "identity_constraints": {"$ref": "#/$defs/textList"},
+          "identity_anchors": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/identityAnchor"}},
+          "view_coverage": {"$ref": "#/$defs/textList"},
+          "unseen_region_policy": {"type": "string", "minLength": 1},
+          "appearance_changes": {"$ref": "#/$defs/textList"}
+        }
+      }
+    },
+    "intent": {
+      "type": "object", "additionalProperties": false,
+      "required": ["request", "setting", "camera", "duration", "initial_state", "beats", "final_state"],
+      "properties": {
+        "request": {"type": "string", "minLength": 1},
+        "setting": {"$ref": "#/$defs/nullableText"},
+        "camera": {"$ref": "#/$defs/nullableText"},
+        "duration": {"$ref": "#/$defs/nullableText"},
+        "initial_state": {"type": "string", "minLength": 1},
+        "beats": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "object", "additionalProperties": false,
+            "required": ["id", "action", "subject_ids"],
+            "properties": {
+              "id": {"$ref": "#/$defs/id"},
+              "action": {"type": "string", "minLength": 1},
+              "subject_ids": {"$ref": "#/$defs/idList"}
+            }
+          }
+        },
+        "final_state": {"type": "string", "minLength": 1}
+      }
+    },
+    "realism_selection": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["subject_id", "subject_state", "realism_mode", "baseline_cues", "repetition_variation"],
+        "properties": {
+          "subject_id": {"$ref": "#/$defs/id"},
+          "subject_state": {"enum": ["awake", "asleep", "unconscious", "nonliving", "unknown"]},
+          "realism_mode": {"enum": ["naturalistic", "stylized-naturalistic", "intentional-stillness", "intentional-nonrealism"]},
+          "baseline_cues": {
+            "type": "array", "minItems": 5,
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["cue", "status", "rationale", "visible_effects", "timing_strategy", "variability"],
+              "properties": {
+                "cue": {"enum": ["respiration", "blinking", "ocular_fixation", "facial_tonus", "postural_micro_adjustment"]},
+                "status": {"$ref": "#/$defs/cueStatus"},
+                "rationale": {"type": "string", "minLength": 1},
+                "visible_effects": {"$ref": "#/$defs/textList"},
+                "timing_strategy": {"$ref": "#/$defs/nullableText"},
+                "variability": {"$ref": "#/$defs/nullableText"}
+              }
+            }
+          },
+          "repetition_variation": {
+            "type": "object", "additionalProperties": false,
+            "required": ["repeated_action", "status", "dimensions", "timing_strategy", "rationale"],
+            "properties": {
+              "repeated_action": {"type": "boolean"},
+              "status": {"enum": ["required", "conditional", "suppressed", "not_applicable"]},
+              "dimensions": {"$ref": "#/$defs/variationDimensionList"},
+              "timing_strategy": {"$ref": "#/$defs/nullableText"},
+              "rationale": {"type": "string", "minLength": 1}
+            }
+          }
+        }
+      }
+    },
+    "behavior_plan": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/behaviorPlan"}},
+    "spatial_plan": {"$ref": "#/$defs/spatialPlan"},
+    "scene_physics": {"$ref": "#/$defs/scenePhysics"},
+    "motion_schedule": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["subject_id", "primary_phases", "articulated_actions", "vitality_tracks", "secondary_tracks", "protected_windows", "priority_order", "coordination_rules", "anti_synchrony_rules"],
+        "properties": {
+          "subject_id": {"$ref": "#/$defs/id"},
+          "primary_phases": {
+            "type": "array", "minItems": 1,
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["beat_id", "window", "phase_kind", "active_motion_windows", "dwell_windows", "tempo", "velocity_profile", "action_ids", "repetition_group", "variation_dimensions", "variation_note"],
+              "properties": {
+                "beat_id": {"$ref": "#/$defs/id"},
+                "window": {"$ref": "#/$defs/normalizedWindow"},
+                "phase_kind": {"enum": ["transition", "dwell", "contact", "glide", "release", "settle", "continuous", "composite"]},
+                "active_motion_windows": {"type": "array", "items": {"$ref": "#/$defs/normalizedWindow"}},
+                "dwell_windows": {"type": "array", "items": {"$ref": "#/$defs/normalizedWindow"}},
+                "tempo": {
+                  "type": "object", "additionalProperties": false,
+                  "required": ["source", "descriptor", "slow_motion", "evidence"],
+                  "properties": {
+                    "source": {"enum": ["user", "reference_video", "inferred", "natural_default"]},
+                    "descriptor": {"enum": ["reference_matched", "natural", "brisk", "deliberate", "slow", "fast", "still"]},
+                    "slow_motion": {"type": "boolean"},
+                    "evidence": {"type": "string", "minLength": 1}
+                  }
+                },
+                "velocity_profile": {
+                  "type": "object", "additionalProperties": false,
+                  "required": ["onset", "acceleration", "peak", "deceleration", "arrival"],
+                  "properties": {
+                    "onset": {"type": "string", "minLength": 1},
+                    "acceleration": {"type": "string", "minLength": 1},
+                    "peak": {"type": "string", "minLength": 1},
+                    "deceleration": {"type": "string", "minLength": 1},
+                    "arrival": {"type": "string", "minLength": 1}
+                  }
+                },
+                "action_ids": {"$ref": "#/$defs/idList"},
+                "repetition_group": {"$ref": "#/$defs/nullableText"},
+                "variation_dimensions": {"$ref": "#/$defs/variationDimensionList"},
+                "variation_note": {"$ref": "#/$defs/nullableText"}
+              }
+            }
+          },
+          "articulated_actions": {
+            "type": "array",
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["id", "beat_ids", "action", "effector", "kinematic_chain", "path", "contact_sequence", "counterbalance", "release"],
+              "properties": {
+                "id": {"$ref": "#/$defs/id"},
+                "beat_ids": {"$ref": "#/$defs/idList"},
+                "action": {"type": "string", "minLength": 1},
+                "effector": {"type": "string", "minLength": 1},
+                "kinematic_chain": {
+                  "type": "array", "minItems": 1,
+                  "items": {
+                    "type": "object", "additionalProperties": false,
+                    "required": ["region", "role", "onset_relation"],
+                    "properties": {
+                      "region": {"type": "string", "minLength": 1},
+                      "role": {"type": "string", "minLength": 1},
+                      "onset_relation": {"type": "string", "minLength": 1}
+                    }
+                  }
+                },
+                "path": {"type": "string", "minLength": 1},
+                "contact_sequence": {"$ref": "#/$defs/textList"},
+                "counterbalance": {"$ref": "#/$defs/textList"},
+                "release": {"type": "string", "minLength": 1}
+              }
+            }
+          },
+          "vitality_tracks": {
+            "type": "array", "minItems": 5,
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["cue", "status", "priority", "mode", "windows", "count_range", "event_duration_seconds", "phase_relation", "variability"],
+              "properties": {
+                "cue": {"$ref": "#/$defs/baselineCue"},
+                "status": {"$ref": "#/$defs/cueStatus"},
+                "priority": {"$ref": "#/$defs/priority"},
+                "mode": {"enum": ["continuous", "windowed", "event", "inactive"]},
+                "windows": {"type": "array", "items": {"$ref": "#/$defs/normalizedWindow"}},
+                "count_range": {
+                  "type": ["array", "null"],
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {"type": "integer", "minimum": 0}
+                },
+                "event_duration_seconds": {
+                  "type": ["array", "null"],
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {"type": "number", "exclusiveMinimum": 0}
+                },
+                "phase_relation": {"$ref": "#/$defs/nullableText"},
+                "variability": {"$ref": "#/$defs/nullableText"}
+              }
+            }
+          },
+          "secondary_tracks": {
+            "type": "array",
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["id", "driver", "response", "windows", "lag", "damping", "settling"],
+              "properties": {
+                "id": {"$ref": "#/$defs/id"},
+                "driver": {"type": "string", "minLength": 1},
+                "response": {"type": "string", "minLength": 1},
+                "windows": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/normalizedWindow"}},
+                "lag": {"type": "string", "minLength": 1},
+                "damping": {"type": "string", "minLength": 1},
+                "settling": {"type": "string", "minLength": 1}
+              }
+            }
+          },
+          "protected_windows": {
+            "type": "array",
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["id", "window", "purpose", "permitted_motion", "suppressed_motion"],
+              "properties": {
+                "id": {"$ref": "#/$defs/id"},
+                "window": {"$ref": "#/$defs/normalizedWindow"},
+                "purpose": {"type": "string", "minLength": 1},
+                "permitted_motion": {"$ref": "#/$defs/textList"},
+                "suppressed_motion": {"$ref": "#/$defs/textList"}
+              }
+            }
+          },
+          "priority_order": {
+            "type": "array", "minItems": 1, "uniqueItems": true,
+            "items": {"type": "string", "minLength": 1}
+          },
+          "coordination_rules": {"$ref": "#/$defs/textList"},
+          "anti_synchrony_rules": {"$ref": "#/$defs/textList"}
+        }
+      }
+    },
+    "intent_resolutions": {
+      "type": "array",
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["source_text", "issue_type", "disposition", "resolution", "rationale"],
+        "properties": {
+          "source_text": {"type": "string", "minLength": 1},
+          "issue_type": {"enum": ["contradiction", "physical_impossibility", "ambiguity", "reference_conflict", "omission"]},
+          "disposition": {"enum": ["corrected", "assumed", "intentional_stylization", "unresolved"]},
+          "resolution": {"type": "string", "minLength": 1},
+          "rationale": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "global_rules": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "constraint"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^G[0-9]{2}$"},
+          "constraint": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "components": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["subject_id", "component_id", "name", "applicability", "priority", "reference_observation", "scene_intent", "appearance_preservation", "primary_motion", "secondary_motion_and_physics", "deformation_and_interaction", "temporal_continuity", "negative_constraints", "traceability"],
+        "properties": {
+          "subject_id": {"$ref": "#/$defs/id"},
+          "component_id": {"type": "string", "pattern": "^[0-9]{2}\\.[0-9]{2}$"},
+          "name": {"type": "string", "minLength": 1},
+          "applicability": {"enum": ["active", "visible-static", "occluded", "outside-frame", "n/a", "uncertain"]},
+          "priority": {"enum": ["critical", "high", "normal", "low"]},
+          "reference_observation": {
+            "type": "object", "additionalProperties": false,
+            "required": ["observed", "unknown", "reference_ids", "confidence"],
+            "properties": {
+              "observed": {"$ref": "#/$defs/textList"},
+              "unknown": {"$ref": "#/$defs/textList"},
+              "reference_ids": {"$ref": "#/$defs/idList"},
+              "confidence": {"$ref": "#/$defs/confidence"}
+            }
+          },
+          "scene_intent": {
+            "type": "object", "additionalProperties": false,
+            "required": ["role", "initial_state", "final_state"],
+            "properties": {
+              "role": {"type": "string", "minLength": 1},
+              "initial_state": {"$ref": "#/$defs/nullableText"},
+              "final_state": {"$ref": "#/$defs/nullableText"}
+            }
+          },
+          "appearance_preservation": {
+            "type": "object", "additionalProperties": false,
+            "required": ["invariants", "allowed_changes"],
+            "properties": {
+              "invariants": {"$ref": "#/$defs/textList"},
+              "allowed_changes": {"$ref": "#/$defs/textList"}
+            }
+          },
+          "primary_motion": {"$ref": "#/$defs/motion"},
+          "secondary_motion_and_physics": {
+            "type": "object", "additionalProperties": false,
+            "required": ["required", "drivers", "behavior"],
+            "properties": {
+              "required": {"$ref": "#/$defs/motionRequired"},
+              "drivers": {"$ref": "#/$defs/textList"},
+              "behavior": {"$ref": "#/$defs/textList"}
+            }
+          },
+          "deformation_and_interaction": {
+            "type": "object", "additionalProperties": false,
+            "required": ["requirements", "contacts", "occlusion"],
+            "properties": {
+              "requirements": {"$ref": "#/$defs/textList"},
+              "contacts": {"$ref": "#/$defs/textList"},
+              "occlusion": {"$ref": "#/$defs/nullableText"}
+            }
+          },
+          "temporal_continuity": {
+            "type": "object", "additionalProperties": false,
+            "required": ["invariants", "allowed_changes", "occlusion_recovery"],
+            "properties": {
+              "invariants": {"$ref": "#/$defs/textList"},
+              "allowed_changes": {"$ref": "#/$defs/textList"},
+              "occlusion_recovery": {"$ref": "#/$defs/nullableText"}
+            }
+          },
+          "negative_constraints": {"$ref": "#/$defs/textList"},
+          "traceability": {
+            "type": "object", "additionalProperties": false,
+            "required": ["global_rule_ids", "reference_ids", "assumptions", "unresolved_conflicts"],
+            "properties": {
+              "global_rule_ids": {"$ref": "#/$defs/idList"},
+              "reference_ids": {"$ref": "#/$defs/idList"},
+              "assumptions": {"$ref": "#/$defs/textList"},
+              "unresolved_conflicts": {"$ref": "#/$defs/textList"}
+            }
+          }
+        }
+      }
+    },
+    "assumptions": {"$ref": "#/$defs/textList"},
+    "unresolved_conflicts": {"$ref": "#/$defs/textList"}
+  },
+  "$defs": {
+    "id": {"type": "string", "minLength": 1},
+    "idList": {"type": "array", "items": {"$ref": "#/$defs/id"}, "uniqueItems": true},
+    "textList": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "nullableText": {"type": ["string", "null"]},
+    "confidence": {"enum": ["high", "medium", "low", "unknown"]},
+    "priority": {"enum": ["critical", "high", "normal", "low"]},
+    "cueStatus": {"enum": ["required", "conditional", "suppressed", "not_visible", "not_applicable", "uncertain"]},
+    "baselineCue": {"enum": ["respiration", "blinking", "ocular_fixation", "facial_tonus", "postural_micro_adjustment"]},
+    "normalizedWindow": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {"type": "number", "minimum": 0, "maximum": 1}
+    },
+    "variationDimensionList": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": ["interval", "dwell_duration", "amplitude", "trajectory", "endpoint", "acceleration_profile", "inter_region_phase", "secondary_response", "settling"]
+      }
+    },
+    "motionRequired": {"enum": ["yes", "no", "conditional"]},
+    "inputPlan": {
+      "type": "object", "additionalProperties": false,
+      "required": ["configuration", "duration_seconds", "duration_source", "frame_anchors", "semantic_references", "segments", "dual_role_reference_ids", "role_conflicts", "loop_intent"],
+      "properties": {
+        "configuration": {
+          "enum": [
+            "first_frame_only", "last_frame_only", "intermediate_frames_only", "reference_frames_only",
+            "first_and_last", "first_and_intermediate", "first_and_references",
+            "last_and_intermediate", "last_and_references", "intermediate_and_references",
+            "first_last_and_intermediate", "first_last_and_references",
+            "first_intermediate_and_references", "last_intermediate_and_references",
+            "first_last_intermediate_and_references"
+          ]
+        },
+        "duration_seconds": {"type": ["number", "null"], "exclusiveMinimum": 0},
+        "duration_source": {"enum": ["user", "content_file", "unknown"]},
+        "frame_anchors": {"type": "array", "items": {"$ref": "#/$defs/frameAnchor"}},
+        "semantic_references": {"type": "array", "items": {"$ref": "#/$defs/semanticReference"}},
+        "segments": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/anchorSegment"}},
+        "dual_role_reference_ids": {"$ref": "#/$defs/idList"},
+        "role_conflicts": {"type": "array", "items": {"$ref": "#/$defs/roleConflict"}},
+        "loop_intent": {"enum": ["none", "seamless", "ping_pong"]}
+      }
+    },
+    "frameAnchor": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "reference_id", "role", "normalized_time", "time_seconds", "timing_source", "adherence", "subject_ids", "beat_ids", "preserve"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "reference_id": {"$ref": "#/$defs/id"},
+        "role": {"enum": ["first_frame", "intermediate_frame", "last_frame"]},
+        "normalized_time": {"type": "number", "minimum": 0, "maximum": 1},
+        "time_seconds": {"type": ["number", "null"], "minimum": 0},
+        "timing_source": {"enum": ["endpoint", "user", "sidecar"]},
+        "adherence": {"enum": ["exact_requested_state", "strong_visual_anchor"]},
+        "subject_ids": {"$ref": "#/$defs/idList"},
+        "beat_ids": {"$ref": "#/$defs/idList"},
+        "preserve": {"$ref": "#/$defs/textList"}
+      }
+    },
+    "semanticReference": {
+      "type": "object", "additionalProperties": false,
+      "required": ["reference_id", "roles", "subject_ids", "object_ids", "priority", "preserve", "exclude"],
+      "properties": {
+        "reference_id": {"$ref": "#/$defs/id"},
+        "roles": {
+          "type": "array", "minItems": 1, "uniqueItems": true,
+          "items": {"enum": ["subject_identity", "face_identity", "body_identity", "clothing", "accessory", "object", "environment", "lighting", "style", "pose", "composition"]}
+        },
+        "subject_ids": {"$ref": "#/$defs/idList"},
+        "object_ids": {"$ref": "#/$defs/idList"},
+        "priority": {"$ref": "#/$defs/priority"},
+        "preserve": {"$ref": "#/$defs/textList"},
+        "exclude": {"$ref": "#/$defs/textList"}
+      }
+    },
+    "anchorSegment": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "window", "from_anchor_id", "to_anchor_id", "beat_ids", "transition_intent", "continuity_constraints", "feasibility"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "window": {"$ref": "#/$defs/normalizedWindow"},
+        "from_anchor_id": {"$ref": "#/$defs/nullableText"},
+        "to_anchor_id": {"$ref": "#/$defs/nullableText"},
+        "beat_ids": {"$ref": "#/$defs/idList"},
+        "transition_intent": {"type": "string", "minLength": 1},
+        "continuity_constraints": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "feasibility": {"enum": ["plausible", "requires_morph", "uncertain"]}
+      }
+    },
+    "roleConflict": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "reference_ids", "issue", "disposition", "resolution"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "reference_ids": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/id"}, "uniqueItems": true},
+        "issue": {"type": "string", "minLength": 1},
+        "disposition": {"enum": ["resolved", "intentional"]},
+        "resolution": {"type": "string", "minLength": 1}
+      }
+    },
+    "identityAnchor": {
+      "type": "object", "additionalProperties": false,
+      "required": ["region", "reference_ids", "invariant", "visibility"],
+      "properties": {
+        "region": {"enum": ["face", "hair", "hands", "body_shape", "skin", "clothing", "accessory", "other"]},
+        "reference_ids": {"$ref": "#/$defs/idList"},
+        "invariant": {"type": "string", "minLength": 1},
+        "visibility": {"enum": ["visible", "partial", "not_visible"]}
+      }
+    },
+    "spatialPlan": {
+      "type": "object", "additionalProperties": false,
+      "required": ["camera_track", "subject_tracks", "interactions", "occlusion_events"],
+      "properties": {
+        "camera_track": {"$ref": "#/$defs/cameraTrack"},
+        "subject_tracks": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/subjectTrack"}},
+        "interactions": {"type": "array", "items": {"$ref": "#/$defs/interaction"}},
+        "occlusion_events": {"type": "array", "items": {"$ref": "#/$defs/occlusionEvent"}}
+      }
+    },
+    "cameraTrack": {
+      "type": "object", "additionalProperties": false,
+      "required": ["status", "path", "orientation", "framing", "depth_change", "window", "subject_motion_decoupled"],
+      "properties": {
+        "status": {"enum": ["static", "moving", "unspecified"]},
+        "path": {"type": "string", "minLength": 1},
+        "orientation": {"type": "string", "minLength": 1},
+        "framing": {"type": "string", "minLength": 1},
+        "depth_change": {"enum": ["none", "approach", "recede", "variable", "unspecified"]},
+        "window": {"$ref": "#/$defs/normalizedWindow"},
+        "subject_motion_decoupled": {"type": "boolean"}
+      }
+    },
+    "subjectTrack": {
+      "type": "object", "additionalProperties": false,
+      "required": ["subject_id", "beat_ids", "path", "depth_change", "orientation_change", "support_relation", "reference_coverage"],
+      "properties": {
+        "subject_id": {"$ref": "#/$defs/id"},
+        "beat_ids": {"$ref": "#/$defs/idList"},
+        "path": {"type": "string", "minLength": 1},
+        "depth_change": {"enum": ["none", "approach", "recede", "variable", "unspecified"]},
+        "orientation_change": {"type": "string", "minLength": 1},
+        "support_relation": {"type": "string", "minLength": 1},
+        "reference_coverage": {"enum": ["sufficient", "partial", "insufficient", "unknown"]}
+      }
+    },
+    "interaction": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "kind", "subject_ids", "object_ids", "beat_ids", "affordance", "approach", "contact", "manipulation", "release", "reaction_dependencies"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["human_object", "human_human", "human_environment"]},
+        "subject_ids": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/id"}, "uniqueItems": true},
+        "object_ids": {"$ref": "#/$defs/idList"},
+        "beat_ids": {"$ref": "#/$defs/idList"},
+        "affordance": {"type": "string", "minLength": 1},
+        "approach": {"$ref": "#/$defs/nullableText"},
+        "contact": {"$ref": "#/$defs/nullableText"},
+        "manipulation": {"$ref": "#/$defs/nullableText"},
+        "release": {"$ref": "#/$defs/nullableText"},
+        "reaction_dependencies": {"$ref": "#/$defs/textList"}
+      }
+    },
+    "occlusionEvent": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "subject_id", "cause", "window", "revealed_regions", "reappearance_constraint"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "subject_id": {"$ref": "#/$defs/id"},
+        "cause": {"type": "string", "minLength": 1},
+        "window": {"$ref": "#/$defs/normalizedWindow"},
+        "revealed_regions": {"$ref": "#/$defs/textList"},
+        "reappearance_constraint": {"type": "string", "minLength": 1}
+      }
+    },
+    "behaviorPlan": {
+      "type": "object", "additionalProperties": false,
+      "required": ["subject_id", "channels", "movement_quality", "facial_plan", "physiology_states", "physiology_couplings", "passive_elements", "dynamics_links", "coordination_rules"],
+      "properties": {
+        "subject_id": {"$ref": "#/$defs/id"},
+        "channels": {"type": "array", "minItems": 7, "maxItems": 7, "items": {"$ref": "#/$defs/behaviorChannel"}},
+        "movement_quality": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/movementQuality"}},
+        "facial_plan": {"$ref": "#/$defs/facialPlan"},
+        "physiology_states": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"$ref": "#/$defs/physiologyState"}},
+        "physiology_couplings": {"type": "array", "items": {"$ref": "#/$defs/physiologyCoupling"}},
+        "passive_elements": {"type": "array", "items": {"$ref": "#/$defs/passiveElement"}},
+        "dynamics_links": {"type": "array", "items": {"$ref": "#/$defs/dynamicsLink"}},
+        "coordination_rules": {"$ref": "#/$defs/textList"}
+      }
+    },
+    "behaviorChannel": {
+      "type": "object", "additionalProperties": false,
+      "required": ["channel", "status", "beat_ids", "behavior", "window", "phases", "sync_points", "sync_with"],
+      "properties": {
+        "channel": {"enum": ["gaze", "face", "head", "gesture", "posture", "locomotion", "speech"]},
+        "status": {"enum": ["active", "held", "not_visible", "not_applicable", "unspecified"]},
+        "beat_ids": {"$ref": "#/$defs/idList"},
+        "behavior": {"$ref": "#/$defs/nullableText"},
+        "window": {"type": ["array", "null"], "minItems": 2, "maxItems": 2, "items": {"type": "number", "minimum": 0, "maximum": 1}},
+        "phases": {"type": "array", "items": {"$ref": "#/$defs/behaviorPhase"}},
+        "sync_points": {"type": "array", "items": {"$ref": "#/$defs/syncPoint"}},
+        "sync_with": {"$ref": "#/$defs/textList"}
+      }
+    },
+    "behaviorPhase": {
+      "type": "object", "additionalProperties": false,
+      "required": ["name", "window"],
+      "properties": {
+        "name": {"enum": ["preparation", "stroke", "hold", "relaxation", "return"]},
+        "window": {"$ref": "#/$defs/normalizedWindow"}
+      }
+    },
+    "syncPoint": {
+      "type": "object", "additionalProperties": false,
+      "required": ["own_phase", "with_channel", "other_phase", "relation"],
+      "properties": {
+        "own_phase": {"enum": ["preparation", "stroke", "hold", "relaxation", "return"]},
+        "with_channel": {"enum": ["gaze", "face", "head", "gesture", "posture", "locomotion", "speech"]},
+        "other_phase": {"enum": ["preparation", "stroke", "hold", "relaxation", "return"]},
+        "relation": {"enum": ["before", "overlap", "after"]}
+      }
+    },
+    "movementQuality": {
+      "type": "object", "additionalProperties": false,
+      "required": ["beat_id", "body", "initiator", "space", "pathway", "range", "shape", "effort", "evidence"],
+      "properties": {
+        "beat_id": {"$ref": "#/$defs/id"},
+        "body": {"type": "string", "minLength": 1},
+        "initiator": {"type": "string", "minLength": 1},
+        "space": {"type": "string", "minLength": 1},
+        "pathway": {"enum": ["direct", "curved", "oscillating", "stationary", "other"]},
+        "range": {"enum": ["none", "small", "medium", "large", "unspecified"]},
+        "shape": {"type": "string", "minLength": 1},
+        "effort": {"$ref": "#/$defs/effort"},
+        "evidence": {"enum": ["observed", "requested", "inferred", "not_applicable"]}
+      }
+    },
+    "effort": {
+      "type": "object", "additionalProperties": false,
+      "required": ["weight", "space", "time", "flow"],
+      "properties": {
+        "weight": {"enum": ["strong", "light", "neutral", "unspecified"]},
+        "space": {"enum": ["direct", "indirect", "neutral", "unspecified"]},
+        "time": {"enum": ["sudden", "sustained", "neutral", "unspecified"]},
+        "flow": {"enum": ["bound", "free", "neutral", "unspecified"]}
+      }
+    },
+    "facialPlan": {
+      "type": "object", "additionalProperties": false,
+      "required": ["visibility", "expression_change", "action_units", "combinations", "rationale"],
+      "properties": {
+        "visibility": {"enum": ["visible", "partial", "not_visible"]},
+        "expression_change": {"type": "boolean"},
+        "action_units": {"type": "array", "items": {"$ref": "#/$defs/actionUnit"}},
+        "combinations": {"type": "array", "items": {"$ref": "#/$defs/actionUnitCombination"}},
+        "rationale": {"type": "string", "minLength": 1}
+      }
+    },
+    "actionUnit": {
+      "type": "object", "additionalProperties": false,
+      "required": ["code", "beat_ids", "laterality", "intensity", "onset", "apex", "offset", "visible_effect", "confidence"],
+      "properties": {
+        "code": {"type": "string", "pattern": "AU[0-9]{1,2}"},
+        "beat_ids": {"$ref": "#/$defs/idList"},
+        "laterality": {"enum": ["bilateral", "left", "right", "unknown"]},
+        "intensity": {"enum": ["A", "B", "C", "D", "E", "unspecified"]},
+        "onset": {"type": "number", "minimum": 0, "maximum": 1},
+        "apex": {"type": "number", "minimum": 0, "maximum": 1},
+        "offset": {"type": "number", "minimum": 0, "maximum": 1},
+        "visible_effect": {"type": "string", "minLength": 1},
+        "confidence": {"$ref": "#/$defs/confidence"}
+      }
+    },
+    "actionUnitCombination": {
+      "type": "object", "additionalProperties": false,
+      "required": ["codes", "coordination"],
+      "properties": {
+        "codes": {"type": "array", "minItems": 2, "uniqueItems": true, "items": {"type": "string", "pattern": "AU[0-9]{1,2}"}},
+        "coordination": {"type": "string", "minLength": 1}
+      }
+    },
+    "physiologyState": {
+      "type": "object", "additionalProperties": false,
+      "required": ["cue", "status", "driver", "visible_effects", "timing_relation", "rationale"],
+      "properties": {
+        "cue": {"enum": ["swallowing", "exertion", "fatigue", "autonomic_response", "speech_breath"]},
+        "status": {"$ref": "#/$defs/cueStatus"},
+        "driver": {"$ref": "#/$defs/nullableText"},
+        "visible_effects": {"$ref": "#/$defs/textList"},
+        "timing_relation": {"$ref": "#/$defs/nullableText"},
+        "rationale": {"type": "string", "minLength": 1}
+      }
+    },
+    "physiologyCoupling": {
+      "type": "object", "additionalProperties": false,
+      "required": ["source", "target", "relationship", "beat_ids"],
+      "properties": {
+        "source": {"enum": ["respiration", "blink", "gaze", "posture", "speech", "exertion", "swallowing", "fatigue", "autonomic_response", "expression"]},
+        "target": {"enum": ["respiration", "blink", "gaze", "posture", "speech", "exertion", "swallowing", "fatigue", "autonomic_response", "expression"]},
+        "relationship": {"type": "string", "minLength": 1},
+        "beat_ids": {"$ref": "#/$defs/idList"}
+      }
+    },
+    "dynamicsLink": {
+      "type": "object", "additionalProperties": false,
+      "required": ["track_id", "driver_kind", "driver_ref", "driver", "response", "material", "scope", "response_strength", "lag", "damping", "settling", "propagates_to", "beat_ids"],
+      "properties": {
+        "track_id": {"$ref": "#/$defs/id"},
+        "driver_kind": {"enum": ["primary_beat", "vitality_cue", "environment", "contact", "secondary_track"]},
+        "driver_ref": {"$ref": "#/$defs/id"},
+        "driver": {"type": "string", "minLength": 1},
+        "response": {"type": "string", "minLength": 1},
+        "material": {"enum": ["body", "soft_tissue", "hair", "fabric", "accessory", "prop", "environment"]},
+        "scope": {"enum": ["face", "head", "body", "object", "environment"]},
+        "response_strength": {"enum": ["subtle", "moderate", "pronounced", "unknown"]},
+        "lag": {"type": "string", "minLength": 1},
+        "damping": {"type": "string", "minLength": 1},
+        "settling": {"type": "string", "minLength": 1},
+        "propagates_to": {"$ref": "#/$defs/idList"},
+        "beat_ids": {"$ref": "#/$defs/idList"}
+      }
+    },
+    "passiveElement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "material", "status", "dynamics_track_ids", "rationale"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "material": {"enum": ["soft_tissue", "hair", "fabric", "accessory", "prop", "environment"]},
+        "status": {"enum": ["affected", "held", "not_visible"]},
+        "dynamics_track_ids": {"$ref": "#/$defs/idList"},
+        "rationale": {"type": "string", "minLength": 1}
+      }
+    },
+    "scenePhysics": {
+      "type": "object", "additionalProperties": false,
+      "required": ["gravity", "objects", "force_fields", "support_contacts", "environmental_drivers", "visual_dependencies"],
+      "properties": {
+        "gravity": {"type": "string", "minLength": 1},
+        "objects": {"type": "array", "items": {"$ref": "#/$defs/physicalObject"}},
+        "force_fields": {"type": "array", "items": {"$ref": "#/$defs/forceField"}},
+        "support_contacts": {"type": "array", "items": {"$ref": "#/$defs/supportContact"}},
+        "environmental_drivers": {"type": "array", "items": {"$ref": "#/$defs/environmentalDriver"}},
+        "visual_dependencies": {"type": "array", "items": {"$ref": "#/$defs/visualDependency"}}
+      }
+    },
+    "supportContact": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "subject_id", "object_id", "surface", "mode", "friction", "beat_ids", "continuity"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "subject_id": {"$ref": "#/$defs/id"},
+        "object_id": {"$ref": "#/$defs/nullableText"},
+        "surface": {"type": "string", "minLength": 1},
+        "mode": {"enum": ["support", "grip", "touch", "release"]},
+        "friction": {"enum": ["low", "ordinary", "high", "unknown"]},
+        "beat_ids": {"$ref": "#/$defs/idList"},
+        "continuity": {"type": "string", "minLength": 1}
+      }
+    },
+    "physicalObject": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "description", "mass_class", "mobility"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "description": {"type": "string", "minLength": 1},
+        "mass_class": {"enum": ["light", "medium", "heavy", "unknown"]},
+        "mobility": {"enum": ["fixed", "movable", "unknown"]}
+      }
+    },
+    "forceField": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "kind", "strength", "direction", "window"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["gravity", "wind", "airflow", "water", "contact_impulse", "other"]},
+        "strength": {"enum": ["subtle", "moderate", "strong", "unknown"]},
+        "direction": {"type": "string", "minLength": 1},
+        "window": {"$ref": "#/$defs/normalizedWindow"}
+      }
+    },
+    "environmentalDriver": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "kind", "effect", "window"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "kind": {"enum": ["wind", "water", "airflow", "moving_prop", "moving_camera", "other"]},
+        "effect": {"type": "string", "minLength": 1},
+        "window": {"$ref": "#/$defs/normalizedWindow"}
+      }
+    },
+    "visualDependency": {
+      "type": "object", "additionalProperties": false,
+      "required": ["driver_kind", "driver_ref", "cause", "effect_kind", "effect", "beat_ids"],
+      "properties": {
+        "driver_kind": {"enum": ["primary_beat", "environment", "contact", "force_field"]},
+        "driver_ref": {"$ref": "#/$defs/id"},
+        "cause": {"type": "string", "minLength": 1},
+        "effect_kind": {"enum": ["shadow", "reflection", "illumination", "occlusion", "perspective", "background_motion"]},
+        "effect": {"type": "string", "minLength": 1},
+        "beat_ids": {"$ref": "#/$defs/idList"}
+      }
+    },
+    "motion": {
+      "type": "object", "additionalProperties": false,
+      "required": ["required", "description", "timing", "constraints"],
+      "properties": {
+        "required": {"$ref": "#/$defs/motionRequired"},
+        "description": {"type": "string", "minLength": 1},
+        "timing": {"$ref": "#/$defs/nullableText"},
+        "constraints": {"$ref": "#/$defs/textList"}
+      }
+    }
+  }
+}

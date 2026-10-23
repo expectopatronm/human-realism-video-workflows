@@ -1,0 +1,3 @@
+interface:
+  display_name: "Human Realism Behavior Planner"
+  short_description: "Plan human behavior across anchors and references"

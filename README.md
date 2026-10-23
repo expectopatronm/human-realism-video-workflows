@@ -6,7 +6,7 @@
 
 This repository develops workflows for realistic human image-to-video creation that can support different video models. It turns one or more reference images and a user's scene idea into a precise description of how a person should appear and move, then compiles that plan into a prompt for a chosen video model. The scene plan preserves what the images establish and makes the intended action explicit before generation.
 
-The repository contains a three-level human realism standard, two Level 3 templates, and two Codex skills: one builds a scene specification independent of any video model, and the other prepares a Gemini Omni video prompt from it. The second skill is the first adapter for a specific model; other video models can be added without changing the underlying scene plan. This README explains how those pieces fit together. The detailed anatomy and rule text remains in the linked guideline files.
+The repository contains a three-level human realism standard, two Level 3 templates, and two Codex skills: the Human Realism Behavior Planner builds a model-neutral behavior plan, and the Gemini Omni adapter compiles that plan for a specific video model. Other adapters can be added without changing the underlying behavior plan. This README explains how those pieces fit together. The detailed anatomy and rule text remains in the linked guideline files.
 
 ## Why a three-level standard?
 
@@ -47,10 +47,10 @@ Level 1 supplies the invariants; Level 2 supplies the head-to-toe inventory; Lev
 
 | Level | Question it answers | Repository source |
 | --- | --- | --- |
-| 1 — Global human realism | What must stay believable throughout the shot? | [Human Appearance, Anatomy & Motion Realism Standard](<Human Realism Scene Specification Skill/Human Appearance, Anatomy & Motion Realism Standard.md>), G01–G29 |
+| 1 — Global human realism | What must stay believable throughout the shot? | [Human Appearance, Anatomy & Motion Realism Standard](<Human Realism Behavior Planner/Human Appearance, Anatomy & Motion Realism Standard.md>), G01–G29 |
 | 2 — Anatomical regions | Which body parts can be observed or affected? | Same standard, 22 head-to-toe regions and their component IDs |
-| 3A — Master component rule | How should a reusable component rule describe anatomy, appearance, motion, interaction, and applicability? | [Standard Template A — Master Component Rule](<Human Realism Scene Specification Skill/Standard Template A — Master Component Rule.md>) |
-| 3B — Scene component specification | Which rules apply to this person, these references, and this action? | [Standard Template B — Agent-Generated Scene Specification](<Human Realism Scene Specification Skill/Standard Template B — Agent-Generated Scene Specification.md>) |
+| 3A — Master component rule | How should a reusable component rule describe anatomy, appearance, motion, interaction, and applicability? | [Standard Template A — Master Component Rule](<Human Realism Behavior Planner/Standard Template A — Master Component Rule.md>) |
+| 3B — Scene component specification | Which rules apply to this person, these references, and this action? | [Standard Template B — Agent-Generated Scene Specification](<Human Realism Behavior Planner/Standard Template B — Agent-Generated Scene Specification.md>) |
 
 ### Scope and principles retained from the design discussion
 
@@ -226,31 +226,35 @@ Visible does not automatically mean active. Eyelashes may be visible during a he
 
 When requirements conflict, the original framework orders them as follows: applicable safety and consent constraints; explicit scene instructions and intentional changes; reference-established identity and appearance; anatomical and physical plausibility; scene-inferred behavior; optional embellishment. An intentional transformation should be labeled as such, while unresolved conflicts should be reported rather than silently merged.
 
-The Level 3 discussion also described an eight-part **component selection procedure**. It is the rule-selection logic inside the agent's broader nine-step operating procedure below:
+The Level 3 discussion described a component selection procedure. The behavior planner extends it with an explicit realism-selection gate so omitted physiology cannot disappear between the standard and the model prompt:
 
 | Stage | Decision |
 | --- | --- |
-| 01. Analyze references | Identify people, visible anatomy, pose, appearance, clothing, and unknown areas |
-| 02. Interpret intent | Find actions, camera behavior, environmental forces, and transitions |
-| 03. Build timeline | Order states, movements, reactions, and ending conditions |
-| 04. Select components | Assign the six applicability states to relevant Level 2 entries |
-| 05. Apply global rules | Attach the relevant Level 1 constraints |
-| 06. Expand component rules | Derive the 3B record from observation, intent, and available 3A guidance |
-| 07. Resolve dependencies | Check joints, synchronization, occlusion, collision, and conflicts |
-| 08. Validate and package | Check completeness, contradictions, traceability, and format before output |
+| 01. Resolve image roles | Separate first, last, and timed intermediate anchors from unpinned semantic references |
+| 02. Analyze references | Identify people, visible anatomy, pose, appearance, clothing, and unknown areas |
+| 03. Interpret intent | Find actions, camera behavior, environmental forces, and transitions |
+| 04. Repair intent | Ask about material ambiguity and record resolutions for omissions, conflicts, and physical impossibilities |
+| 05. Select baseline realism | Decide respiration, blinking, ocular fixation, facial tonus, postural adjustment, and repeated-action variation for every subject |
+| 06. Plan space and interaction | Separate camera and subject trajectories; define reference coverage, affordances, contact, reactions, and occlusion |
+| 07. Build timeline | Order states, movements, reactions, anchor transitions, and ending conditions |
+| 08. Schedule motion | Assign normalized primary, vitality, and secondary windows with bounded variation and anti-synchrony |
+| 09. Select components | Assign the six applicability states to relevant Level 2 entries and support every active baseline cue |
+| 10. Apply rules | Attach the relevant Level 1 constraints and derive the 3B component records |
+| 11. Resolve dependencies | Check joints, synchronization, anchor boundaries, physical drivers, occlusion, collision, variation, and conflicts |
+| 12. Validate and package | Check completeness, input roles, segment coherence, contradictions, traceability, and format before output |
 
 ## Agent workflow and downstream generation
 
-The [scene specification skill](<.agents/skills/human-realism-scene-specification/SKILL.md>) accepts accessible reference images and the user's scene intent. It prepares A, B, and C. The [Gemini Omni prompting skill](<.agents/skills/gemini-omni-human-realism-video-prompting/SKILL.md>) then uses A as the authoritative handoff, with B/C and media mapping as context, to prepare a prompt specifically for Gemini Omni. Video generation itself is a later stage.
+The [Human Realism Behavior Planner](<.agents/skills/human-realism-behavior-planner/SKILL.md>) accepts first, last, timed intermediate, and semantic-reference images in any non-empty combination with the user's scene intent. It prepares A, B, and C. The existing [Gemini Omni prompting skill](<.agents/skills/gemini-omni-human-realism-video-prompting/SKILL.md>) uses A as the authoritative handoff, with B/C and media mapping as context. Video generation itself is a later stage.
 
 ```mermaid
 flowchart LR
-    R["Input A<br/>One or more reference images"] --> AG["GPT-based Scene Specification Agent<br/>observe · interpret · select · synchronize · preflight"]
+    R["Input A<br/>First · intermediate · last · semantic references"] --> AG["Human Realism Behavior Planner<br/>classify · observe · clarify · plan · preflight"]
     U["Input B<br/>User's desired scene and action"] --> AG
     L1["Level 1<br/>Global rules"] --> AG
     L2["Level 2<br/>Anatomical selection"] --> AG
     L3["Level 3<br/>Operational rules"] --> AG
-    AG --> S["Standardized Scene Specification<br/>action · anatomy · appearance · motion · physics · timing · constraints"]
+    AG --> S["Standardized Behavior Plan<br/>image roles · anchors · identity · interaction · motion · physics"]
     S --> J["A · Structured JSON"]
     S --> H["B · Human-readable specification"]
     S --> P["C · Generation prompt"]
@@ -264,33 +268,100 @@ flowchart LR
     VM --> V["Generated video"]
 ```
 
-The standardized scene specification is the stable handoff. Different video models may need different prompt phrasing, input image handling, or settings; those adaptations should preserve the same subject, action order, constraints, and uncertainty. The first skill stops after A, B, and C. The second stops after the Gemini Omni prompt and reference attachment map. Neither skill generates or evaluates a video.
+### Human Realism Behavior Planner in detail
+
+The first agent owns everything inside the boundary below. Its job is to convert image evidence and sparse scene intent into a complete, traceable, model-neutral behavior plan. The model adapters begin only after A–C are complete.
+
+```mermaid
+flowchart TD
+    FF["first_frame/<br/>exact opening"] --> INV
+    IF["intermediate_frames/<br/>timed interior anchors"] --> INV
+    LF["last_frame/<br/>exact ending"] --> INV
+    RF["reference_frames/<br/>unpinned semantic evidence"] --> INV
+    UT["content.txt or user request<br/>action · camera · duration · ending"] --> INTENT
+
+    subgraph HRBP["Human Realism Behavior Planner · model-neutral boundary"]
+        INV["1 · Inventory media<br/>verify files · timing · duplicate roles"]
+        INV --> ROLE["2 · Resolve image authority<br/>one of 15 configurations"]
+        ROLE --> ANCHORS["Timeline anchors<br/>first · intermediate · last"]
+        ROLE --> SEMANTIC["Semantic assignments<br/>identity · clothing · object · scene · pose"]
+
+        ANCHORS --> OBS["3 · Inspect visual evidence<br/>observed facts · confidence · unknowns"]
+        SEMANTIC --> OBS
+        INTENT["4 · Interpret scene intent<br/>beats · states · changes · loop intent"] --> GATE
+        OBS --> GATE{"Material ambiguity<br/>or conflict?"}
+
+        GATE -- yes --> ASK["Ask targeted user questions<br/>role · timing · target · continuity · feasibility"]
+        ASK --> ANSWER["Record answers and resolutions"]
+        ANSWER --> ROLE
+        GATE -- no --> INPUTPLAN["5 · Build input_plan<br/>anchors · semantic roles · interpolation segments"]
+
+        INPUTPLAN --> ID["6 · Identity and view coverage<br/>identity anchors · unseen-region policy"]
+        INPUTPLAN --> TIMELINE["7 · Anchor-to-anchor timeline<br/>initial state · beats · final state"]
+
+        ID --> BML["Behavior channels · BML<br/>gaze · face · head · gesture · posture · locomotion · speech"]
+        TIMELINE --> BML
+        TIMELINE --> LABAN["Movement quality · Laban<br/>Body · Space · Shape · Effort"]
+        TIMELINE --> FACS["Facial behavior · FACS<br/>AUs · onset · apex · offset"]
+        TIMELINE --> LIFE["Human vitality<br/>breath · blink · fixation · tonus · posture · physiology"]
+
+        BML --> BEHAVIOR["8 · Integrated behavior_plan"]
+        LABAN --> BEHAVIOR
+        FACS --> BEHAVIOR
+        LIFE --> BEHAVIOR
+
+        INPUTPLAN --> SPACE["9 · spatial_plan<br/>camera and subject paths · interaction · occlusion"]
+        INPUTPLAN --> PHYSICS["10 · scene_physics<br/>support · contact · forces · objects · environment"]
+        BEHAVIOR --> SCHEDULE["11 · motion_schedule<br/>phases · windows · variation · priority · anti-synchrony"]
+        SPACE --> SCHEDULE
+        PHYSICS --> SCHEDULE
+
+        RULES["Human realism knowledge base<br/>G01–G29 · Level 2 anatomy · component rules"] --> SELECT["12 · Select applicable anatomy and rules"]
+        SCHEDULE --> SELECT
+        SELECT --> DEP["13 · Resolve dependencies<br/>identity · anatomy · contact · camera · passive response · anchors"]
+        DEP --> CHECK{"14 · Preflight valid?"}
+        CHECK -- revise --> GATE
+        CHECK -- yes --> JSON["A · scene_spec.json<br/>schema 1.7 source of truth"]
+        CHECK -- yes --> READABLE["B · scene_spec.md<br/>human-readable plan"]
+        CHECK -- yes --> PROMPT["C · generation_prompt.txt<br/>model-neutral prompt"]
+    end
+
+    JSON -. authoritative handoff .-> DOWN["Downstream model adapter<br/>outside planner boundary"]
+    READABLE -. review context .-> DOWN
+    PROMPT -. wording context .-> DOWN
+```
+
+The standardized behavior plan is the stable handoff. Different video models may need different prompt phrasing, input image handling, or settings; those adaptations should preserve the same subject, action order, constraints, and uncertainty. The behavior planner stops after A, B, and C. Model-specific compilation begins outside the planner boundary. Neither the planner nor the existing Gemini adapter evaluates generated-video quality.
 
 ### Operational steps
 
-1. **Reference analysis:** Examine each image; identify subjects, visible anatomy, pose, appearance, clothing, accessories, setting, and unknowns.
-2. **Intent interpretation:** Translate the user's request into actions, expressions, interactions, and state changes. Separate explicit instructions from assumptions.
-3. **Scene timeline:** Order the meaningful actions and reactions. Use supplied timing or label any timing that must be assumed.
-4. **Anatomical selection:** Review Level 2 and classify each relevant component using the six applicability states. Detail active parts, preserve visible-static ones, and account for relevant occlusion.
-5. **Rule application:** Apply Level 1 invariants and matching 3A dimensions to anatomy, appearance, primary and secondary motion, deformation, physics, interaction, lighting, continuity, and failure prevention.
-6. **Dependency resolution:** Synchronize connected body parts, contact, balance, occlusion, and timing; resolve or record conflicts using the precedence order above.
-7. **Specification construction:** Build the Level 3B scene plan with subjects, references, timeline, component requirements, negative constraints, traceability, assumptions, and unresolved information.
-8. **Preflight validation:** Check requested-action coverage, relevant active components, anatomical and physical coherence, timing, reference fidelity, traceability, and contradictions. Distinguish mandatory constraints from optional enhancements. This validates the specification before generation.
-9. **Output A–C:** Emit structured JSON, an equivalent readable specification, and a concise model-appropriate generation prompt.
+1. **Input-role resolution:** Classify each image as a first, last, or timed intermediate anchor, an unpinned semantic reference, or an explicit dual role. Derive one of fifteen supported configurations and divide the clip into anchor-to-anchor segments.
+2. **Reference analysis:** Examine each image; identify subjects, visible anatomy, pose, appearance, clothing, accessories, setting, and unknowns without transferring evidence beyond the image's assigned role.
+3. **Intent interpretation and clarification:** Translate the request into actions, expressions, interactions, state changes, and anchor transitions. Ask targeted questions when image role, timing, semantic target, loop behavior, or physical continuity is materially ambiguous; record answers and other material repairs.
+4. **Baseline realism selection:** For each subject, explicitly decide respiration, blinking, ocular fixation, facial tonus, postural micro-adjustment, and bounded variation for repeated action.
+5. **Behavior and scene physics:** Decide all seven behavior channels and applicable phase synchronization, movement quality for each beat, visible facial actions, extended physiology, causal passive dynamics, objects, force fields, support/contact, and environmental effects.
+6. **Spatial and interaction planning:** Define identity anchors and reference coverage, separate camera and subject trajectories, structure human-object or human-human interaction, and record occlusion and reappearance constraints.
+7. **Motion scheduling:** Give every subject normalized primary-phase windows aligned to input segments, vitality tracks, driven secondary tracks, coordination rules, and anti-synchrony rules. Assign bounded differences to repeated phases without prescribing per-frame animation.
+8. **Anatomical selection:** Review Level 2 and classify each relevant component using the six applicability states. Detail active parts, preserve visible-static ones, account for relevant occlusion, and map active baseline cues to supporting components and G16.
+9. **Rule application:** Apply Level 1 invariants and matching 3A dimensions to anatomy, appearance, primary and secondary motion, deformation, physics, interaction, lighting, continuity, and failure prevention.
+10. **Dependency resolution:** Synchronize connected body parts, respiration, gaze, expression, contact, balance, anchor boundaries, secondary motion, occlusion, timing, and bounded human variation.
+11. **Plan construction:** Build the Level 3B scene plan with input roles, anchors, semantic assignments, interpolation segments, subjects, timeline, realism selection, behavior plan, spatial plan, scene physics, motion schedule, intent resolutions, component requirements, traceability, assumptions, and unresolved information.
+12. **Preflight validation:** Check role configuration, anchor timing, semantic targets, segment coverage, transition feasibility, identity and viewpoint coverage, camera and subject paths, interaction structure, requested-action coverage, baseline-cue disposition, schedule coverage, repetition variation, driven secondary response, physical coherence, reference fidelity, and traceability.
+13. **Output A–C:** Emit schema 1.7 JSON, an equivalent readable specification, and a concise generation prompt compiled from the input, behavior, spatial, and motion plans.
 
-The agent accepts optional duration, camera direction, environment, target video model, and other visual or movement constraints. When a necessary image or the core action is missing, it requests that input. When only a detail is uncertain, it can proceed with a labeled assumption. Multiple references are evidence to reconcile, not faces or body features to average together.
+The agent accepts optional duration, camera direction, environment, target video model, and other visual or movement constraints. When a necessary image, image role, intermediate timestamp, semantic target, or core action is missing, it requests that input. When only a reversible detail is uncertain, it can proceed with a labeled assumption. Multiple references are evidence to reconcile, not faces or body features to average together, and alternate views do not become timeline frames unless explicitly assigned.
 
-The guiding principle from the design discussion is simple: keep what the images establish, animate what the user asks for, infer only what is needed, and prevent accidental changes in anatomy, identity, or motion.
+The guiding principle is to preserve what the images establish, animate the requested scene, and infer the minimum visible physiology needed for a living subject to remain natural. Baseline life cues are explicit selection decisions rather than optional embellishments.
 
 ## Output contract
 
 | Output | Purpose | What it contains |
 | --- | --- | --- |
-| **A — Structured scene specification** | Stable machine-readable record | Scene and reference IDs, subjects, ordered action beats, selected global rules, scene-specific component entries, assumptions, unresolved conflicts |
-| **B — Human-readable specification** | Review and editing | The same scene plan and constraints in readable language, with visible evidence and uncertainties |
-| **C — Generation prompt** | Initial model-facing phrasing | Subject preservation, action sequence, camera, relevant physical behavior, and high-priority exclusions; the Gemini skill recompiles it from A for Omni |
+| **A — Structured scene specification** | Stable machine-readable record | Image-role configuration, timeline anchors, semantic assignments, interpolation segments, scene and reference IDs, identity anchors, subjects, ordered beats, camera and subject paths, interactions, realism decisions, intent resolutions, selected rules, component entries, assumptions, and unresolved conflicts |
+| **B — Human-readable specification** | Review and editing | The same scene plan, baseline cues, variation, and constraints in readable language, with visible evidence and uncertainties |
+| **C — Generation prompt** | Initial model-facing phrasing | Subject preservation, action sequence, camera, concrete baseline behavior, bounded variation, physical response, and high-priority exclusions; the selected model skill recompiles it from A |
 
-The JSON field names and allowed values are defined by the [schema](<.agents/skills/human-realism-scene-specification/references/scene-spec.schema.json>) and explained in the [output contract](<.agents/skills/human-realism-scene-specification/references/output-contract.md>). For every component, the specification distinguishes what is observed from what is planned. Component and rule IDs remain traceable to the standard. A pre-generation [structural validator](<.agents/skills/human-realism-scene-specification/scripts/validate_spec.py>) checks that IDs and references are valid; it does not judge generated video.
+The JSON field names and allowed values are defined by the [schema](<.agents/skills/human-realism-behavior-planner/references/scene-spec.schema.json>) and explained in the [output contract](<.agents/skills/human-realism-behavior-planner/references/output-contract.md>). For every component, the specification distinguishes what is observed from what is planned. Component and rule IDs remain traceable to the standard. A pre-generation [structural validator](<.agents/skills/human-realism-behavior-planner/scripts/validate_spec.py>) checks that IDs and references are valid; it does not judge generated video.
 
 The deliverable deliberately excludes a quality assurance checklist, pass/fail evaluation, and post-generation review.
 
@@ -300,12 +371,19 @@ The Level 3 chat recommended **JSON as the canonical representation**, followed 
 | --- | --- |
 | Scene and subject identity | `scene_id` and `subjects` |
 | Evidence and reference policy | `references`, subject reference IDs, component observations, confidence, and unknowns |
+| Image authority and chronology | `input_plan` with one of fifteen configurations, ordered frame anchors, semantic assignments, dual roles, conflicts, loop intent, and interpolation segments |
 | Desired action, duration, camera, and ordered events | `intent` with initial state, beats, and final state |
+| Baseline vitality and natural repetition | `realism_selection` with five cue decisions and `repetition_variation` per subject |
+| Human behavior and expression | `behavior_plan` with seven channels and phase synchronization, Body/Space/Shape/Effort, facial AU timing and combinations, extended physiology, and passive-dynamics propagation |
+| Identity, viewpoints, and interaction | Subject `identity_anchors`, `view_coverage`, and `unseen_region_policy`, plus `spatial_plan` camera and subject tracks, affordance-based interactions, and occlusion events |
+| Contact and environment | `scene_physics` with known objects, qualitative force fields, support contacts, environmental drivers, and typed visual dependencies |
+| Temporal orchestration | `motion_schedule` with normalized primary phases, vitality tracks, driven secondary tracks, coordination, and anti-synchrony rules |
+| Repairs to incomplete or incompatible intent | `intent_resolutions` with the source issue, disposition, resolution, and rationale |
 | Global invariants | `global_rules` with G IDs and scene-specific constraints |
 | Anatomical rules chosen for the scene | `components` with Level 2 IDs, applicability, priority, motion, physics, interaction, continuity, and traceability |
 | Inference and unresolved information | `assumptions` and `unresolved_conflicts` |
 
-The sample in the chat included video-evaluation placeholders because the wider architecture contemplated later assessment. They are deliberately absent from the current schema. Preflight checks only the plan's structure and coherence before generation. The readable specification and prompt must agree with the JSON on identity, action order, timing assumptions, and constraints.
+The sample in the chat included video-evaluation placeholders because the wider architecture contemplated later assessment. They are deliberately absent from the current schema. Schema 1.7 requires explicit image roles, anchor timing, semantic targets, interpolation segments, identity and viewpoint coverage, explicit camera and subject tracks, structured interactions, behavior-channel and movement-quality coverage, facial expression timing, causal dynamics, scene contacts, motion-source authority, explicit tempo, articulated actions, vitality scheduling, and intent resolution; earlier artifacts must be regenerated or migrated. Preflight checks only the plan's structure and coherence before generation. The readable specification and prompt must agree with the JSON on image authority, identity, action order, temporal relationships, baseline cues, variation, and constraints.
 
 ### Architecture layers
 
@@ -371,6 +449,7 @@ The user supplies the actual reference images to Gemini Omni when generating a v
 The deliverable is the text in `gemini_omni_prompt.txt` plus the attachment map in the accompanying reply. The JSON stays as the project record; the full JSON, anatomical component IDs, and rule library are not pasted into Omni. When the destination is unspecified, the prompt uses portable natural language. In a Gemini or Flow interface, the attachment roles can be expressed in ordinary words. In an API workflow, image-reference tags can be considered after the actual upload order is known and checked against [current Gemini API documentation](https://ai.google.dev/gemini-api/docs/omni).
 
 This separation lets the same scene plan support another video model later. A new model adapter should preserve reference roles, identity, beat order, camera intent, interactions, and uncertainty while changing only the model-facing phrasing and media handoff.
+
 
 ## Worked example 1: head turn, smile, and breeze
 
@@ -469,26 +548,32 @@ These examples use different kinds of motion: a head turn with expression and dr
 
 ## Using the Codex skill
 
-Open this repository in Codex and provide the image or images with a scene request. Invoke **$human-realism-scene-specification** when you want the scene plan explicitly. A useful request is:
+Open this repository in Codex and provide the image or images with a scene request. Invoke **$human-realism-behavior-planner** when you want the behavior plan explicitly. A useful request is:
 
-> Use $human-realism-scene-specification with these references. Keep the person recognizable. Describe the intended action, camera behavior, and final pose, then return the JSON specification, readable specification, and generation prompt.
+> Use $human-realism-behavior-planner with these references. Keep the person recognizable. Describe the intended action, camera behavior, and final pose, then return the JSON specification, readable specification, and generation prompt.
 
 If saved as files, the outputs are named scene_spec.json, scene_spec.md, and generation_prompt.txt. The JSON can be checked with:
 
-    python .agents/skills/human-realism-scene-specification/scripts/validate_spec.py path/to/scene_spec.json
+    python .agents/skills/human-realism-behavior-planner/scripts/validate_spec.py path/to/scene_spec.json
+
+For the repository folder workflow, put images in the matching role folders under `generation_artefacts/input/images/`, put scene intent in `generation_artefacts/input/content.txt`, and inventory the input before planning:
+
+    python .agents/skills/human-realism-behavior-planner/scripts/resolve_image_inputs.py generation_artefacts/input/images --duration 10
+
+`first_frame/` and `last_frame/` each accept at most one image. Interior anchors go in `intermediate_frames/` with `timings.json`. Unpinned identity, appearance, clothing, object, environment, lighting, style, pose, or composition evidence goes in `reference_frames/`; optional `roles.json` can declare its intended semantic scope and targets. The planner asks before final output when timing, role, target, duplication, loop behavior, or anchor-to-anchor feasibility remains material and unresolved.
 
 Then invoke **$gemini-omni-human-realism-video-prompting** with the validated JSON and the reference images or their attachment order. A useful request is:
 
 > Use $gemini-omni-human-realism-video-prompting on this scene_spec.json. I will attach R1 first and R2 second. Return the Gemini Omni prompt and tell me which references to provide.
 
-If no JSON exists yet, the Gemini skill runs the scene specification stage first when the images and scene intent are available. If a prompt is saved, its filename is `gemini_omni_prompt.txt`.
+If no JSON exists yet, the Gemini skill runs the behavior planning stage first when the images and scene intent are available. If a prompt is saved, its filename is `gemini_omni_prompt.txt`.
 
 ## Repository map
 
 ```text
 .
 ├── README.md
-├── Human Realism Scene Specification Skill/
+├── Human Realism Behavior Planner/
 │   ├── Human Appearance, Anatomy & Motion Realism Standard.md
 │   ├── Standard Template A — Master Component Rule.md
 │   ├── Standard Template B — Agent-Generated Scene Specification.md
@@ -506,21 +591,30 @@ If no JSON exists yet, the Gemini skill runs the scene specification stage first
 │       ├── google-gemini-icon-2025.svg
 │       └── omni-prompt-anatomy.svg
 └── .agents/skills/
-    ├── human-realism-scene-specification/
+    ├── human-realism-behavior-planner/
     │   ├── SKILL.md
     │   ├── agents/openai.yaml
-    │   ├── references/output-contract.md
-    │   ├── references/scene-spec.schema.json
+    │   ├── references/
+    │   │   ├── behavior-planning.md
+    │   │   ├── motion-scheduling.md
+    │   │   ├── multi-image-conditioning.md
+    │   │   ├── output-contract.md
+    │   │   ├── scene-spec.schema.json
+    │   │   └── selection-policy.md
     │   └── scripts/
     │       ├── validate_spec.py
-    │       └── test_validate_spec.py
+    │       ├── resolve_image_inputs.py
+    │       ├── resolve_motion_schedule.py
+    │       ├── test_resolve_image_inputs.py
+    │       ├── test_validate_spec.py
+    │       └── test_resolve_motion_schedule.py
     └── gemini-omni-human-realism-video-prompting/
         ├── SKILL.md
         ├── agents/openai.yaml
         └── references/prompt-patterns.md
 ```
 
-The two named folders keep the human-facing source material together. The skills remain under .agents/skills so Codex can discover them. Future work can populate Template A with component-specific master rules or add other model-specific prompt adapters while retaining the same scene specification handoff.
+The named folders keep the human-facing source material together. The skills remain under .agents/skills so Codex can discover them. Future work can populate Template A with component-specific master rules or add further model adapters while retaining the same behavior-plan handoff.
 
 ## Design record and current status
 
@@ -533,15 +627,19 @@ The original design conversation developed this in stages: an initial head-to-to
 | Level 3A master rule format | Template exists; a full per-component rule library remains future work |
 | Level 3B scene format | Template exists and is applied by the skill |
 | Formal scene JSON schema and structural tests | Implemented in the skill |
+| Generic motion variation scheduler | Introduced in schema 1.4 and retained in schema 1.7 with motion-source authority, real-time tempo, movement bursts and dwells, velocity profiles, articulated chains, prioritized vitality, existing-dwell protection, and destination-time resolution |
+| Behavior planning and clarification | Implemented in schema 1.7 with channel coverage, movement quality, facial action timing, physiology and secondary-dynamics links, scene contacts, and a question gate for material ambiguity |
+| Identity, viewpoint, and interaction planning | Implemented in schema 1.7 with identity anchors, reference coverage, separate camera and subject tracks, structured affordances and reactions, and occlusion/reappearance constraints |
+| Multi-image conditioning | Implemented in schema 1.7 with all fifteen non-empty input combinations, timeline anchors, semantic role and target assignments, dual-role declarations, role conflicts, loop intent, interpolation segments, folder resolution, and clarification rules |
 | Agent orchestration and outputs A–C | Implemented in the skill |
 | Gemini Omni prompt compilation | Implemented as the second skill; consumes validated A and a reference attachment map |
-| Other model-specific prompt adapters | Can be added without changing the scene specification |
+| Other model-specific prompt adapters | Can be added without changing the behavior plan |
 | Generated-video review | Outside the current skill |
 
 The research references are [FACS](https://www.paulekman.com/facial-action-coding-system/), [OpenUSD UsdSkel](https://openusd.org/dev/api/_usd_skel__intro.html), [MaterialX](https://materialx.org/Specification.html), [OpenPBR](https://academysoftwarefoundation.github.io/OpenPBR/index.html), [VBench](https://arxiv.org/abs/2311.17982), and the later [VBench++](https://arxiv.org/abs/2411.13503) extension discussed in Level 3. They support different concepts; none is presented as the source of this complete framework.
 
 ## Visual assets and sources
 
-The six woman images were generated for this README using one fictional adult subject. They show example appearances, poses, and interactions; they are not user-supplied reference images, anatomical diagrams, or proof that a video will satisfy the guidelines. Their prompts are documented in [images/PROMPTS.md](<Human Realism Scene Specification Skill/images/PROMPTS.md>).
+The six woman images were generated for this README using one fictional adult subject. They show example appearances, poses, and interactions; they are not user-supplied reference images, anatomical diagrams, or proof that a video will satisfy the guidelines. Their prompts are documented in [images/PROMPTS.md](<Human Realism Behavior Planner/images/PROMPTS.md>).
 
 The multicolor Gemini icon is Google's mark, sourced from the [Wikimedia Commons file page](https://commons.wikimedia.org/wiki/File:Google_Gemini_icon_2025.svg), which identifies Google LLC as the author and notes trademark restrictions. It identifies Gemini Omni as the prompt target; the icon is not a logo for this repository. The prompt-anatomy graphic is an original project diagram. All README images are stored locally so the document renders without external image hosts.
