@@ -127,6 +127,21 @@ The planner does not generate or evaluate video.
         └── test_*.py
 ```
 
+The two top-level areas have different responsibilities. `.agents/skills/human-realism-behavior-planner/` is the discoverable Codex skill package: it defines how Codex runs the planner. `Human Realism Behavior Planner/` contains the project knowledge and user-provided image inputs consumed by that skill.
+
+```mermaid
+flowchart LR
+    U["User invokes<br/>$human-realism-behavior-planner"] --> S[".agents/skills/.../SKILL.md"]
+    S --> K["Human Realism Behavior Planner/<br/>standards and templates"]
+    S --> I["Human Realism Behavior Planner/images/<br/>user input images"]
+    S --> R["Skill references/<br/>planning contracts"]
+    S --> T["Skill scripts/<br/>resolve and validate"]
+    K --> P["Behavior plan"]
+    I --> P
+    R --> P
+    T --> P
+```
+
 ## Use the skill
 
 Invoke **`$human-realism-behavior-planner`** with accessible images and the intended scene. For example:
