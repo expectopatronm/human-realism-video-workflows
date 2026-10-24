@@ -19,6 +19,8 @@ The planner accepts any non-empty combination of:
 
 It asks targeted questions when image roles, timing, semantic targets, continuity, or physical feasibility are materially ambiguous. Otherwise, it records reasonable assumptions and proceeds.
 
+For restrained or micro-realistic human performance, the planner also asks about motion magnitude, facial freedom, respiration readability, held body regions, hidden support, and loop meaning when those choices are not already explicit. Safety or age confirmation does not replace these performance questions.
+
 ## Planner workflow
 
 ```mermaid
@@ -94,6 +96,8 @@ flowchart TD
 - Explicit separation of chronological anchors from unpinned reference evidence
 - Identity anchors, viewpoint coverage, and policies for unseen regions
 - Seven behavior channels and synchronized action phases
+- Human motion budgets, quiet-region guards, and non-robotic overlapping transitions
+- Explicit separation of quiet breathing from swallowing, mouth motion, gasping, shrugging, and head recoil
 - Laban Body, Space, Shape, and Effort movement qualities
 - Visibility-aware facial action planning
 - Respiration, blinking, fixation, facial tonus, posture, and extended physiology
@@ -201,6 +205,8 @@ python .agents/skills/human-realism-behavior-planner/scripts/resolve_motion_sche
 Then invoke **`$gemini-omni-1-1-prompt-writer`** on the directory containing those outputs:
 
 > Use $gemini-omni-1-1-prompt-writer on `output/my-scene/` and write the Gemini Omni 1.1 prompt beside the planner artifacts.
+
+The Gemini writer requires the intended output ratio—`9:16` or `16:9`—and asks when it is missing. It treats padded source-image borders as framing allowance, not as permission to zoom or recompose the subject. Before writing, it checks semantic coverage of held human behavior such as arms/hands, facial pose, mouth/jaw/throat stability, support contacts, and suppressed physiology.
 
 Validate the handoff directly when needed:
 

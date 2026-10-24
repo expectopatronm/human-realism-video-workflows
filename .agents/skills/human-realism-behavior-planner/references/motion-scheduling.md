@@ -24,6 +24,16 @@ When a destination duration is known, run `scripts/resolve_motion_schedule.py` t
 8. **Protected windows:** Use only a span already identified as a dwell. State the purpose and continuing motion. Never invent a pause, brake an active transition, or suppress source-defined follow-through merely to expose a subtle cue.
 9. **Priority, coordination, and anti-synchrony:** Preserve the primary performance first, keep regions causally connected, and prevent biological or secondary events from recurring at one mechanical phase point.
 
+## Quiet-performance scheduling
+
+For idle or restrained behavior, do not use the timeline as a sequence of whole-body target poses. Preserve a continuous center-of-mass path and overlap the initiator, connected anatomy, passive response, and settling with small nonuniform delays. Explicitly state which regions remain quiet during each phase.
+
+Keep plainly legible concurrency within the scene's motion budget: the primary action plus no more than one or two additional visible cues unless physiology requires more. Candidate vitality windows provide opportunities, not obligations. Do not stack a blink, breath reversal, head-tilt apex, shoulder arrival, soft-tissue response, and facial change at one boundary.
+
+For quiet respiration, schedule low-amplitude lower-rib/upper-abdominal motion while holding mouth aperture, jaw, throat, chin, head height, and shoulder elevation. A swallow, gasp, sigh, speech breath, or exertion breath is a different action and requires its own explicit disposition.
+
+A dwell is not a rigid freeze or a reset pose. Maintain only the residual balance and below-performance-threshold vitality selected by the plan. Do not make every region arrive at zero velocity on the same frame except at an explicitly requested fully settled loop boundary.
+
 ## Event windows
 
 An event window is an allowed interval rather than an exact firing time. `count_range: [2, 3]` with four blink windows means that two or three windows may contain a blink. It does not request four blinks. This gives a video model temporal freedom while preventing a completely omitted cue or a metronomic event at every action boundary.

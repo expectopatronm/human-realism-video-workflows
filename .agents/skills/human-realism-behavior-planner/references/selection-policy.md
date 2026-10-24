@@ -29,6 +29,20 @@ Record every material repair in `intent_resolutions`:
 
 Do not silently alter identity, narrative meaning, emotional intent, framing, object contact, or the requested final state.
 
+## Human-performance clarification gate
+
+Read [human-motion-control.md](human-motion-control.md) for restrained, idle, held, looped, micro-realistic, hidden-support, or one-anchor performances. Ask one grouped set of questions before final output when the user has not established a materially important human-control choice:
+
+- primary-motion magnitude;
+- facial freedom and whether mouth, jaw, throat, brows, or cheeks are locked;
+- respiration readability and permitted regions;
+- held limbs, contacts, and support assumptions;
+- duration meaning and loop endpoint behavior.
+
+Treat first-frame-only control of a long or multi-phase action, occluded support mechanics, held expression with visible respiration, several competing micro-cues, and strict loops without an endpoint anchor as higher uncertainty. Do not hide that uncertainty inside ordinary assumptions. Offer the smallest naturalistic option as a default, but obtain the user's answer when the alternatives visibly change the performance.
+
+Safety, age, consent, or identity confirmation may still be necessary, but it does not satisfy this performance gate.
+
 ## Baseline cue decisions
 
 Use `required` when the cue should be plainly represented, `conditional` when its expression depends on a beat or visibility, `suppressed` only for an explicit or physically justified reduction, `not_visible` when framing or occlusion hides it, `not_applicable` for a nonliving subject, and `uncertain` when evidence is inadequate.
@@ -36,8 +50,10 @@ Use `required` when the cue should be plainly represented, `conditional` when it
 ### Respiration
 
 - Usually required or conditional for an awake living subject in a multi-second shot when the upper torso is visible.
-- Express it as low-amplitude coupled motion across the upper chest, ribcage, shoulders, neck base, clothing, and supported soft tissue according to the framing.
+- For quiet breathing, initiate primarily in the lower ribcage and upper abdomen. Upper chest, clothing, and supported soft tissue may follow secondarily according to framing; shoulder and neck-base motion should be absent or nearly imperceptible unless breathing is deliberately pronounced.
 - Use a non-metronomic phase and amplitude description. Do not make each cycle identical.
+- Explicitly hold jaw, lip aperture, tongue, throat, chin, head height, and gaze unless speech, swallowing, gasping, exertion, or another requested action requires them. Parted lips do not authorize mouth breathing or mouth-shape drift.
+- Prohibit throat bobbing, chin lift, head recoil, shoulder shrug, and whole-body vertical pulsing for ordinary quiet respiration.
 - Suppress only for a justified breath hold, strong exertion phase, speech pattern, medical state, or explicit intentional stillness. A suppressed cue still needs a rationale.
 
 Supporting Level 2 components can include `10.01`, `10.02`, `10.03`, `15.01`, `15.02`, and `15.04`.
@@ -63,6 +79,7 @@ The principal supporting component is `03.05`.
 - Usually required or conditional when the face is visible, even for a neutral, bored, or stone-still expression.
 - Preserve the requested expression with restrained eyelid, cheek, brow, jaw, and lip coordination. Neutrality does not mean frozen facial tissue.
 - Do not add arbitrary eyebrow raises, lip motion, twitching, or a change of emotion.
+- When the expression is held, keep unrequested jaw, lip-aperture, throat, brow, and cheek actions held. Living tonus is not a micro-expression loop.
 
 Supporting components can include `02.03`, `03.02`, `03.03`, `05.02`, `07.01`, `07.02`, and `07.03`.
 
@@ -71,6 +88,7 @@ Supporting components can include `02.03`, `03.02`, `03.03`, `05.02`, `07.01`, `
 - Usually required or conditional for unsupported standing, seated balance, or held poses lasting multiple seconds.
 - Couple small head, neck, shoulder, spine, pelvis, and support changes to balance and the requested primary action.
 - Reduce or suppress it when the subject is externally supported, deliberately immobilized, asleep, unconscious, or intentionally stylized as frozen.
+- Do not turn it into an independent sway, nod, shrug, or whole-body pose change. It should support balance and remain subordinate to the primary action.
 
 Supporting components can include `08.01`, `08.02`, `09.03`, `11.01`, `11.03`, `15.05`, and `16.01`.
 
@@ -91,7 +109,7 @@ Variation must remain causal and compatible with the requested rhythm. It should
 
 ## Motion budget
 
-Prioritize the requested primary action. Choose two to four baseline cues that will be visibly legible in the actual framing and represent other applicable cues more subtly. Secondary motion must have a driver: respiration, inertia, gravity, contact, muscle action, or the primary movement. Do not independently animate every visible body part.
+Prioritize the requested primary action. Allow at most one or two additional cues to be plainly legible at the same moment unless the action physiologically requires more. Represent other applicable cues below deliberate-performance amplitude or conditionally suppress them with a scene-specific rationale. Secondary motion must have a driver: respiration, inertia, gravity, contact, muscle action, or the primary movement. Do not independently animate every visible body part.
 
 Hair, fabric, soft tissue, eyelids, eyelashes, shoulders, and facial regions should respond to their physical or anatomical drivers. Their movement should include a small lag or settling when appropriate, not an unrelated decorative loop.
 
@@ -124,6 +142,11 @@ Before building the final prompt, verify that:
 - protected windows do not overlap, and priority order covers the primary action, active vitality, and secondary motion exactly once;
 - repeated phases realize at least two selected variation dimensions and include anti-synchrony rules;
 - every scheduled secondary response has a physical or anatomical driver, lag, damping, and settling;
+- every restrained performance has an amplitude decision, quiet-region guards, and prohibited substitutions;
+- quiet respiration cannot be read as swallowing, speech, gasping, shrugging, or whole-body vertical motion;
+- plainly legible simultaneous cues remain within the motion budget;
+- held expression preserves unrequested mouth, jaw, throat, brow, and cheek states;
+- regional starts, peaks, reversals, and stops are not globally synchronized into pose-to-pose motion;
 - all corrections, assumptions, stylizations, and unresolved material conflicts are recorded;
 - the human-readable specification and generation prompt contain each required or conditional cue in concrete visible terms.
 

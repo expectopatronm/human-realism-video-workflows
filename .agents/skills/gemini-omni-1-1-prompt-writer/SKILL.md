@@ -19,24 +19,30 @@ If `motion_schedule_resolved.json` is present, use its seconds-based timing. Oth
 
 Before writing, read the model guide at `../../../Gemini Omni 1.1 Prompt Writer/Gemini Omni 1.1 Prompting Guide.md`. Do not treat its example prompts as scene content.
 
+Require the intended Gemini output aspect ratio. Accept only `9:16` or `16:9`; ask the user when neither is supplied, and never infer it from the input image's shape. Treat source-image padding as framing allowance rather than permission to zoom, crop, or recompose the human subject.
+
 ## Handoff validation
 
 Run:
 
     python scripts/validate_handoff.py path/to/planner-output-directory
 
-Stop and ask a targeted question if a required artifact is absent or invalid, the artifacts identify different scenes, `unresolved_conflicts` is non-empty, an input reference needed for generation is unavailable, or a choice would materially change the requested shot. Do not ask about optional details that the planner intentionally left open.
+Stop and ask a targeted question if a required artifact is absent or invalid, the artifacts identify different scenes, `unresolved_conflicts` is non-empty, an input reference needed for generation is unavailable, the target aspect ratio is missing, or a choice would materially change the requested shot. Do not ask about optional details that the planner intentionally left open.
 
 ## Prompt compilation
 
 1. Establish the generation mode from `input_plan`: name every supplied image by its declared timeline or semantic role. Never present a semantic reference as a chronological frame. Describe first, intermediate, and last anchors in time order, including exact adherence requirements.
-2. Open with the shot identity: duration when known, style, subject, location, framing, continuous-shot intent, and camera behavior. Use the guide's natural videography language such as `locked-off`, `fixed`, or the requested camera move.
-3. Describe the primary action chronologically. Preserve anchor-to-anchor segments, action ordering, support/contact, subject trajectory, expression, gaze, interactions, occlusion, and the final state. Use seconds only when supported by the validated input or resolved schedule.
-4. Integrate living realism as visible cause and effect: posture and weight transfer drive connected anatomy; acceleration and deceleration drive hair, fabric, and soft-tissue response; breathing, blinking, fixation, facial tonus, and micro-adjustment retain their planner-assigned status, timing, priority, and anti-synchrony.
-5. State identity, appearance, composition, lighting, and environment preservation from their actual evidence roles. Do not expand a face reference into authority over body, clothing, pose, or setting.
-6. End with a compact preservation and avoidance clause containing only shot-critical failure modes. Prefer affirmative direction, but retain explicit prohibitions when the planner marks them as important.
+2. Build an internal hard-invariant ledger from the JSON before drafting. Include every held behavior channel, observed limb/contact state, visible-static component, identity or appearance preservation rule, suppressed physiology cue, prohibited substitution, loop boundary, and user-declared invariant. Do not output the ledger, but do not omit an item merely to shorten the prompt.
+3. Open with the target aspect ratio, duration when known, continuous-shot intent, and the requested camera/framing state. Do not invent cinematography. Use the guide's natural terms such as `locked-off`, `fixed`, or the requested camera move.
+4. Describe the primary human action in chronological order and plain action language. Preserve anchor-to-anchor order, support/contact, subject trajectory, expression, gaze, interactions, and final state. Use exact seconds for major beats only when supported; do not turn every blink, breath, or secondary response into a timestamped command.
+5. Add one compact human-realism clause following the planner's motion budget. Preserve the primary action as dominant, keep plainly legible concurrent cues limited, retain quiet-region guards, and name prohibited substitutions. For quiet respiration, explicitly keep mouth aperture, jaw, throat, chin, head height, and shoulder elevation stable unless the plan says otherwise.
+6. Add only materially visible causal secondary responses. Do not enumerate every component, anatomy rule, candidate event window, or micro-cue. Convert schedule relationships into natural overlap, lag, damping, and settling rather than a sequence of full-body poses.
+7. State identity, appearance, held gesture/limb state, and environment preservation from their actual evidence roles. Do not expand a face reference into authority over body, clothing, pose, or setting.
+8. End with the shortest set of shot-critical failure prohibitions not already expressed positively.
 
-Exploit Gemini Omni's world understanding: describe the intended physical result clearly without dumping anatomical rules, JSON field names, AU codes, component IDs, or internal reasoning. Keep the requested performance dominant. Do not add story beats, camera motion, dialogue, audio, appearance changes, or visual details absent from the planner.
+Exploit Gemini Omni's world understanding: describe the intended physical result clearly without dumping anatomical rules, JSON field names, AU codes, component IDs, or internal reasoning. Keep the requested performance dominant. Do not add story beats, camera motion, dialogue, audio, appearance changes, or visual details absent from the planner. More planner detail does not justify a longer prompt when the same human behavior can be expressed as one causal instruction.
+
+Before writing the file, compare the draft against the internal hard-invariant ledger. Revise until every human-behavior invariant is represented directly or by an unambiguous higher-level instruction. This is semantic coverage, not a word-matching exercise. In particular, never drop held hands/arms, mouth/jaw/throat locks, support contacts, or facial-expression holds.
 
 For looped work, state the exact loop mode. A ping-pong source must end at the planned zero-velocity turnaround with all driven secondary motion settled; do not falsely require its last frame to match its first frame.
 
