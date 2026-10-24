@@ -349,6 +349,48 @@ def check_behavior_plan(spec, subjects):
             beat["id"] for beat in spec["intent"]["beats"]
             if subject in beat["subject_ids"]
         }
+        control = plan["performance_control"]
+        support = control["support_state"]
+        posture = control["posture_preservation"]
+        layers = control["temporal_layers"]
+        layer_ids = [layer["id"] for layer in layers]
+        layer_map = {layer["id"]: layer for layer in layers}
+        if len(layer_ids) != len(set(layer_ids)):
+            errors.append(f"{label}: duplicate temporal-layer IDs")
+        primary_layers = [layer for layer in layers if layer["kind"] == "primary_voluntary"]
+        if len(primary_layers) != 1:
+            errors.append(f"{label}: performance control needs exactly one primary voluntary layer")
+        concurrency = control["concurrency_policy"]
+        dominant_id = concurrency["dominant_track_id"]
+        if dominant_id not in layer_map:
+            errors.append(f"{label}: dominant temporal layer is unknown")
+        elif layer_map[dominant_id]["kind"] != "primary_voluntary":
+            errors.append(f"{label}: dominant temporal layer must be primary voluntary")
+        subthreshold = concurrency["subthreshold_track_ids"]
+        if set(subthreshold) - set(layer_ids) or dominant_id in subthreshold:
+            errors.append(f"{label}: invalid subthreshold temporal-layer IDs")
+        if any(layer_map[item]["amplitude"] not in {"subthreshold", "barely_perceptible"}
+               for item in subthreshold if item in layer_map):
+            errors.append(f"{label}: subthreshold tracks must stay below salient amplitude")
+        channels_by_name = {item["channel"]: item for item in plan["channels"]}
+        support_dependent = any(
+            channels_by_name.get(name, {}).get("status") == "active"
+            for name in {"posture", "locomotion"}
+        )
+        if support_dependent and support["posture_class"] == "unknown":
+            errors.append(f"{label}: active posture or locomotion needs a resolved support state")
+        if support_dependent and support["pelvis_height"] == "unknown":
+            errors.append(f"{label}: active posture or locomotion needs an explicit pelvis-height policy")
+        if posture["authority"] == "strict" and not posture["prohibited_normalization"]:
+            errors.append(f"{label}: strict posture preservation needs prohibited normalizations")
+        variability = control["variability_policy"]
+        if variability["mode"] == "bounded_aperiodic" and not variability["dimensions"]:
+            errors.append(f"{label}: bounded aperiodic motion needs variation dimensions")
+        expected_loop = {
+            "none": "none", "seamless": "seamless_forward", "ping_pong": "ping_pong",
+        }[spec["input_plan"]["loop_intent"]]
+        if control["loop_policy"]["mode"] != expected_loop:
+            errors.append(f"{label}: performance loop policy contradicts input loop intent")
         channel_names = [item["channel"] for item in plan["channels"]]
         if set(channel_names) != expected or len(channel_names) != len(set(channel_names)):
             errors.append(f"{label}: channels must cover each behavior channel once")

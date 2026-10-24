@@ -17,6 +17,7 @@ When a destination duration is known, run `scripts/resolve_motion_schedule.py` t
 1. **Motion evidence:** Add each source clip to `motion_sources`, including duration, role, observations, excluded attributes, and confidence. Describe actual travel, rotation, contact, rebound, and rest instead of reducing the clip to milestone poses.
 2. **Primary phases:** Map every beat involving a subject exactly once and preserve beat order. Mark each phase kind. Split each phase into `active_motion_windows` and `dwell_windows`; these may alternate inside a phase but never overlap. Clip duration is a container, not permission to stretch a short action across the whole phase.
 3. **Tempo and velocity:** State the tempo source, descriptor, slow-motion status, and evidence. Default unspecified human motion to natural real-time speed. For every phase, describe onset, acceleration, peak, deceleration, and arrival. When a reference controls timing, use `reference_matched` and retain its bursts, holds, recoil, and follow-through.
+   Also populate `performance_control.temporal_layers`. A slow voluntary action does not slow biological events, active balance corrections, or material response unless the user requests slow-motion footage.
 4. **Articulated actions:** Define the ordered kinematic chain, path, contact progression, counterbalance, and release. A reach normally propagates through torso or scapula, shoulder, upper arm, elbow, forearm, wrist, hand, and fingers with overlaps and small lags; do not represent it as one rigid endpoint translation.
 5. **Bounded variation:** Treat the first group member as the baseline. Every later member names its changed dimensions and describes the difference. Differences must come from `realism_selection.repetition_variation.dimensions`.
 6. **Vitality tracks:** Schedule all five baseline cues and assign each a priority. Required and conditional cues need windows, a phase relationship, and variability. Continuous tracks span ongoing behavior; event tracks use candidate windows, a count range, and a physically plausible event-duration range in seconds; windowed tracks depend on particular phases.
@@ -28,11 +29,13 @@ When a destination duration is known, run `scripts/resolve_motion_schedule.py` t
 
 For idle or restrained behavior, do not use the timeline as a sequence of whole-body target poses. Preserve a continuous center-of-mass path and overlap the initiator, connected anatomy, passive response, and settling with small nonuniform delays. Explicitly state which regions remain quiet during each phase.
 
-Keep plainly legible concurrency within the scene's motion budget: the primary action plus no more than one or two additional visible cues unless physiology requires more. Candidate vitality windows provide opportunities, not obligations. Do not stack a blink, breath reversal, head-tilt apex, shoulder arrival, soft-tissue response, and facial change at one boundary.
+Keep plainly legible concurrency within the scene's motion budget: the primary action plus no more than one or two additional salient cues unless physiology requires more. Multiple subthreshold cues may coexist when they are causal, independent in phase, and individually below deliberate-performance amplitude. Candidate vitality windows provide opportunities, not obligations. Do not stack a blink, breath reversal, head-tilt apex, shoulder arrival, soft-tissue response, and facial change at one boundary.
 
 For quiet respiration, schedule low-amplitude lower-rib/upper-abdominal motion while holding mouth aperture, jaw, throat, chin, head height, and shoulder elevation. A swallow, gasp, sigh, speech breath, or exertion breath is a different action and requires its own explicit disposition.
 
 A dwell is not a rigid freeze or a reset pose. Maintain only the residual balance and below-performance-threshold vitality selected by the plan. Do not make every region arrive at zero velocity on the same frame except at an explicitly requested fully settled loop boundary.
+
+Preserve every major dwell as an explicit interval. Adapters must not replace “hold from 8.0 to 10.0 seconds” with “settled by the end,” because the latter permits continued motion through the planned hold.
 
 ## Event windows
 
@@ -59,6 +62,7 @@ Every model adapter must preserve:
 - vitality priority, event-duration bounds, protected windows, and the scene priority order;
 - driver-to-response relationships, lag, damping, and settling;
 - coordination and anti-synchrony rules.
+- support state, posture invariants, behavioral reading, independent temporal layers, concurrency class, bounded variability, and reverse-sensitive loop handling.
 
 Adapters translate this plan into natural language suited to the destination. They do not expose JSON field names, require every candidate event, invent per-frame noise, or discard the schedule merely to shorten a prompt.
 

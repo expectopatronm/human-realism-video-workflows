@@ -34,6 +34,8 @@ Do not silently alter identity, narrative meaning, emotional intent, framing, ob
 Read [human-motion-control.md](human-motion-control.md) for restrained, idle, held, looped, micro-realistic, hidden-support, or one-anchor performances. Ask one grouped set of questions before final output when the user has not established a materially important human-control choice:
 
 - primary-motion magnitude;
+- intended behavioral reading and prohibited readings;
+- support class, weight-bearing contacts, initial load, pelvis height, and lower-limb preservation;
 - facial freedom and whether mouth, jaw, throat, brows, or cheeks are locked;
 - respiration readability and permitted regions;
 - held limbs, contacts, and support assumptions;
@@ -111,7 +113,7 @@ Variation must remain causal and compatible with the requested rhythm. It should
 
 Prioritize the requested primary action. Allow at most one or two additional cues to be plainly legible at the same moment unless the action physiologically requires more. Represent other applicable cues below deliberate-performance amplitude or conditionally suppress them with a scene-specific rationale. Secondary motion must have a driver: respiration, inertia, gravity, contact, muscle action, or the primary movement. Do not independently animate every visible body part.
 
-Hair, fabric, soft tissue, eyelids, eyelashes, shoulders, and facial regions should respond to their physical or anatomical drivers. Their movement should include a small lag or settling when appropriate, not an unrelated decorative loop.
+Hair, fabric, soft tissue, eyelids, eyelashes, shoulders, and facial regions should respond to their physical or anatomical drivers. Their movement should include a small lag or settling when appropriate, not an unrelated decorative loop. Keep response duration physically natural even when the voluntary action is slow; slow action is not automatically slow-motion footage.
 
 ## Motion scheduling
 
@@ -143,6 +145,8 @@ Before building the final prompt, verify that:
 - repeated phases realize at least two selected variation dimensions and include anti-synchrony rules;
 - every scheduled secondary response has a physical or anatomical driver, lag, damping, and settling;
 - every restrained performance has an amplitude decision, quiet-region guards, and prohibited substitutions;
+- every subject has one dominant voluntary temporal layer, an explicit support state, posture invariants, behavioral reading, concurrency policy, variability policy, and loop policy;
+- slow voluntary motion does not stretch blink, respiration, compensation, hair, fabric, or soft-tissue response into slow motion;
 - quiet respiration cannot be read as swallowing, speech, gasping, shrugging, or whole-body vertical motion;
 - plainly legible simultaneous cues remain within the motion budget;
 - held expression preserves unrequested mouth, jaw, throat, brow, and cheek states;

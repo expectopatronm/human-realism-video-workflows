@@ -12,6 +12,10 @@ The file contains only the ready-to-paste Gemini Omni 1.1 prompt. It must:
 - preserve intermediate and endpoint anchor adherence without treating semantic references as frames;
 - preserve loop semantics, including a settled turnaround for ping-pong playback;
 - preserve every held human-behavior channel, observed limb/contact state, facial lock, quiet-region guard, suppressed physiology cue, and prohibited human-motion substitution;
+- preserve behavioral intent, support topology, pelvis height, starting-posture invariants, and every prohibited pose normalization;
+- preserve exact major dwell intervals rather than merely requiring arrival by their endpoints;
+- apply slow timing only to the layers marked slow while retaining normal-speed biological, compensatory, and material response;
+- allow bounded subthreshold head, eye, and facial variation without changing gaze target or expression category;
 - keep quiet respiration distinct from swallowing, drinking, speech, gasping, shrugging, head recoil, and mouth-shape change;
 - follow the planner's motion budget instead of making every micro-cue plainly visible;
 - contain no planner schema terms, internal rule IDs, Action Unit codes, unsupported additions, evaluation instructions, or claim of generation.

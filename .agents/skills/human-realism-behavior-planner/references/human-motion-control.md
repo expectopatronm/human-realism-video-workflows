@@ -7,6 +7,8 @@ Use this reference when a scene depends on restrained, idle, held, looped, or mi
 Do not equate a syntactically complete request with a sufficiently controlled performance. Ask one grouped set of short questions when any missing choice below would materially change visible human behavior:
 
 - **Primary-motion magnitude:** barely perceptible, restrained but readable, or clearly visible.
+- **Behavioral reading:** the ordinary activity or state the body should communicate, and readings it must not drift into (for example waiting rather than performing).
+- **Support topology:** standing, seated, leaning, or otherwise supported; which contacts bear weight; whether pelvis height and lower-limb flexion are fixed.
 - **Facial freedom:** blink-only face lock, preserved expression with minute tonus, or limited micro-expression.
 - **Respiration readability:** nearly imperceptible, subtly readable, or clearly readable; identify whether lower ribs/upper abdomen, upper chest, or both may show it.
 - **Held-body regions:** whether observed hands, arms, shoulders, jaw, lips, throat, or support contacts must remain fixed.
@@ -32,7 +34,7 @@ Human realism is not the maximum number of moving regions. Build an explicit mot
 
 1. Preserve the primary action as the only dominant track.
 2. Allow at most one or two additional cues to be plainly legible at the same moment unless the action physiologically requires more.
-3. Keep other applicable vitality below the threshold of deliberate performance, or mark it conditional/suppressed with a rationale.
+3. Allow several causally justified cues concurrently only when each remains below deliberate-performance amplitude. Subthreshold concurrency is natural; synchronized salience is not.
 4. Keep all observed but unrequested regions in `held` or visible-static states and state what prevents drift.
 5. Never animate a region merely because it is visible.
 
@@ -57,6 +59,31 @@ Avoid treating beats as a sequence of full-body poses. Natural movement should h
 - a dwell preserves quiet vitality and residual balance rather than becoming a frozen keyframe.
 
 Do not insert independent sways, nods, shrugs, mouth actions, or gaze shifts to make a held pose look alive. For repeated movements, vary narrowly without changing the action family. Prefer differences in acceleration, dwell, or inter-region phase over visibly different endpoints when continuity is important.
+
+## Support topology and posture preservation
+
+Classify the starting support state before prescribing motion. Record weight-bearing contacts, external supports, initial load distribution, lower-limb state, and whether pelvis height is fixed or allowed to change. A first frame is already a physical state, not a staging pose the model may normalize before beginning the action.
+
+When posture authority is strict, list both invariants and prohibited normalizations. In particular, prevent an in-place action from becoming a stand-up, sit-down, crouch release, knee extension, pelvis lift, canonical straightening, or re-centering unless requested. If occlusion makes the support state materially ambiguous, ask the user or constrain the action to what is visible.
+
+## Independent temporal layers
+
+Do not use one speed adjective for the whole body. Assign each layer its own clock:
+
+- voluntary action may be slow and deliberate;
+- balance compensation occurs in real time but remains small;
+- respiration follows a biological cadence;
+- blinks retain normal event duration;
+- hair, fabric, and soft tissue respond at their material speed, then damp and settle;
+- head, eye, and facial tonus may contain bounded aperiodic micro-variation without changing gaze or expression.
+
+`Slow` describes the requested voluntary travel unless the user explicitly requests slow-motion footage. It must not stretch blink closure, passive bounce, fabric settling, or other physical responses. Conversely, preserving normal response speed does not authorize larger amplitude or extra cycles.
+
+## Behavioral intent and bounded variation
+
+Separate behavioral intent from facial expression. A sensual, stern, neutral, or cheerful face does not by itself make the body flirt, dance, pose, or perform. State the intended everyday reading and prohibited readings, then choose effort, amplitude, and rhythm that support it.
+
+Natural idle behavior is bounded and aperiodic, not frozen and not random. Permit minute non-cyclic differences in acceleration, dwell, inter-region lag, fixation correction, head support, eyelid/cheek/brow tonus, and settling. Keep mouth, jaw, throat, gaze target, support state, and expression category invariant when required. A generated clip remains deterministic on replay; genuine long-run non-repetition requires multiple variants, a longer source, or a procedural playback system.
 
 ## Quiet respiration
 
@@ -99,6 +126,9 @@ For an in-place weight transfer:
 - hidden support mechanics must not reveal invented feet or change the crop;
 - observed arm/hand placement remains held unless needed for balance and authorized by the user;
 - deceleration may drive one damped secondary response, never repeated decorative bouncing.
+- preserve starting pelvis height and lower-limb flexion unless vertical travel is explicitly requested;
+- use slow voluntary transfer with normal-speed, low-amplitude physical response rather than globally slowed motion;
+- vary tiny head and facial support corrections independently within bounds instead of tying a visible head tilt to every arrival.
 
 If the support base is invisible and the requested magnitude cannot be inferred conservatively, ask for the magnitude or constrain the movement rather than inventing a large shift.
 
@@ -112,6 +142,10 @@ Before finalizing a quiet human performance, confirm that:
 - respiration cannot be mistaken for swallowing, speech, gasping, or a shrug;
 - facial freedom matches the requested expression;
 - plainly visible concurrent cues remain within the motion budget;
+- support topology, pelvis-height policy, and posture-normalization prohibitions are explicit;
+- behavioral intent cannot be misread as a more performative action;
+- voluntary, biological, compensatory, and passive layers retain their own time scales;
+- bounded micro-variation preserves gaze and expression without freezing the face;
 - starts, peaks, reversals, and stops are not globally synchronized;
 - a first-frame-only, long-duration, or hidden-support plan is identified as higher uncertainty;
 - the generation brief preserves every human-behavior hard invariant.

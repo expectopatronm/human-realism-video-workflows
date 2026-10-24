@@ -10,7 +10,9 @@ With multiple images, first establish whether each one is a fixed first, interme
 
 For ordinary unspecified details, choose the smallest naturalistic behavior supported by the image and intent, mark its evidence as inferred, and record a material assumption or `intent_resolution`. Questions should concern creative choices the user can answer, not ask them to supply anatomical or physics expertise. Never infer a visible fact from an occluded region.
 
-For idle, restrained, held, looped, micro-realistic, hidden-support, or one-anchor performances, also apply [human-motion-control.md](human-motion-control.md). Ask about missing magnitude, facial freedom, respiration readability, held regions, hidden support, and loop meaning when the answer changes visible behavior. A safety or age question does not replace this control gate. Do not silently treat words such as `subtle`, `slow`, or `natural` as sufficient amplitude specifications.
+For idle, restrained, held, looped, micro-realistic, hidden-support, or one-anchor performances, also apply [human-motion-control.md](human-motion-control.md). Ask about missing magnitude, behavioral reading, support topology, posture authority, facial freedom, respiration readability, held regions, and loop meaning when the answer changes visible behavior. A safety or age question does not replace this control gate. Do not silently treat words such as `subtle`, `slow`, or `natural` as sufficient amplitude specifications.
+
+Before the seven behavior channels, build `performance_control`. Separate behavioral intent from expression; record support contacts and pelvis-height policy; state posture invariants and prohibited normalization; assign voluntary, compensatory, biological, passive, and micro-variation layers their own time scales; define salient versus subthreshold concurrency; bound variation; and identify loop-reversal-sensitive cues. Use exactly one dominant voluntary layer per subject.
 
 ## Behavior channels
 

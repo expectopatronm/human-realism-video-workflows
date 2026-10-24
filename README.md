@@ -50,8 +50,9 @@ flowchart TD
         INPUTPLAN --> ID["6 · Identity and view coverage<br/>identity anchors · unseen-region policy"]
         INPUTPLAN --> TIMELINE["7 · Anchor-to-anchor timeline<br/>initial state · beats · final state"]
 
-        ID --> BML["Behavior channels<br/>gaze · face · head · gesture · posture · locomotion · speech"]
-        TIMELINE --> BML
+        ID --> CONTROL["Performance control<br/>intent · support · posture · independent clocks · variability · loop"]
+        TIMELINE --> CONTROL
+        CONTROL --> BML["Behavior channels<br/>gaze · face · head · gesture · posture · locomotion · speech"]
         TIMELINE --> LABAN["Movement quality<br/>Body · Space · Shape · Effort"]
         TIMELINE --> FACS["Facial behavior<br/>action units · onset · apex · offset"]
         TIMELINE --> LIFE["Human vitality<br/>breath · blink · fixation · tonus · posture · physiology"]
@@ -72,7 +73,7 @@ flowchart TD
         SELECT --> DEP["13 · Resolve dependencies<br/>identity · anatomy · contact · camera · passive response · anchors"]
         DEP --> CHECK{"14 · Preflight valid?"}
         CHECK -- revise --> GATE
-        CHECK -- yes --> JSON["A · scene_spec.json<br/>schema 1.7 source of truth"]
+        CHECK -- yes --> JSON["A · scene_spec.json<br/>schema 1.8 source of truth"]
         CHECK -- yes --> READABLE["B · scene_spec.md<br/>human-readable plan"]
         CHECK -- yes --> PROMPT["C · generation_prompt.txt<br/>model-neutral generation brief"]
     end
@@ -97,6 +98,10 @@ flowchart TD
 - Identity anchors, viewpoint coverage, and policies for unseen regions
 - Seven behavior channels and synchronized action phases
 - Human motion budgets, quiet-region guards, and non-robotic overlapping transitions
+- Behavioral intent separated from facial expression, with prohibited performance readings
+- Explicit support topology, pelvis-height policy, posture invariants, and pose-normalization guards
+- Independent clocks for voluntary action, compensation, biology, passive materials, and micro-variation
+- Bounded aperiodic head, gaze, and facial support variation without expression drift
 - Explicit separation of quiet breathing from swallowing, mouth motion, gasping, shrugging, and head recoil
 - Laban Body, Space, Shape, and Effort movement qualities
 - Visibility-aware facial action planning
@@ -111,7 +116,7 @@ flowchart TD
 
 The planner produces exactly three artifacts:
 
-1. `scene_spec.json` — canonical structured plan matching schema 1.7
+1. `scene_spec.json` — canonical structured plan matching schema 1.8
 2. `scene_spec.md` — equivalent human-readable specification
 3. `generation_prompt.txt` — model-neutral generation brief derived from the plan
 
