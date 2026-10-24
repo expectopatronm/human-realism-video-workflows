@@ -1,9 +1,14 @@
-# Human Realism Behavior Planner
+# Human Realism Video Workflows
 
 **Current subject scope:** Adult female human  
-**Use case:** Model-neutral human behavior planning for photorealistic image-to-video work
+**Use case:** Model-neutral human behavior planning followed by model-specific prompt compilation
 
-This repository contains one Codex skill: the **Human Realism Behavior Planner**. It converts image evidence and a scene request into a complete, traceable behavior plan before any model-specific prompting or video generation.
+This repository contains a two-stage Codex workflow:
+
+1. **Human Realism Behavior Planner** converts image evidence and scene intent into a complete, traceable, model-neutral behavior plan.
+2. **Gemini Omni 1.1 Prompt Writer** reads that completed handoff and compiles it, together with the Gemini prompting guide, into one ready-to-paste Gemini Omni 1.1 prompt.
+
+Behavior decisions belong to stage 1. Model-specific wording belongs to stage 2. Neither skill generates or evaluates video.
 
 The planner accepts any non-empty combination of:
 
@@ -67,7 +72,19 @@ flowchart TD
         CHECK -- revise --> GATE
         CHECK -- yes --> JSON["A · scene_spec.json<br/>schema 1.7 source of truth"]
         CHECK -- yes --> READABLE["B · scene_spec.md<br/>human-readable plan"]
-        CHECK -- yes --> PROMPT["C · generation_prompt.txt<br/>model-neutral prompt"]
+        CHECK -- yes --> PROMPT["C · generation_prompt.txt<br/>model-neutral generation brief"]
+    end
+
+    JSON --> GEMINI
+    READABLE --> GEMINI
+    PROMPT --> GEMINI
+    RESOLVED["motion_schedule_resolved.json<br/>seconds-based timing when available"] --> GEMINI
+    GUIDE["Gemini Omni 1.1<br/>Prompting Guide"] --> GEMINI
+
+    subgraph GOPW["Gemini Omni 1.1 Prompt Writer · model-specific boundary"]
+        GEMINI["15 · Validate planner handoff<br/>cross-check scene · conflicts · timing"]
+        GEMINI --> COMPILE["16 · Compile Gemini prompt<br/>shot · camera · action · realism · constraints"]
+        COMPILE --> GPROMPT["gemini_omni_1_1_prompt.txt<br/>ready to paste into Gemini"]
     end
 ```
 
@@ -86,15 +103,17 @@ flowchart TD
 - Anatomy and realism rules selected from the project knowledge base
 - Structural and semantic preflight validation
 
-## Outputs
+## Outputs and handoff
 
 The planner produces exactly three artifacts:
 
 1. `scene_spec.json` — canonical structured plan matching schema 1.7
 2. `scene_spec.md` — equivalent human-readable specification
-3. `generation_prompt.txt` — direct model-neutral prompt derived from the plan
+3. `generation_prompt.txt` — model-neutral generation brief derived from the plan
 
-The planner does not generate or evaluate video.
+When duration is known, `motion_schedule_resolved.json` provides the derived seconds-based schedule. The Gemini writer reads the complete planner output directory and adds:
+
+4. `gemini_omni_1_1_prompt.txt` — the ready-to-paste model-specific prompt
 
 ## Repository layout
 
@@ -110,24 +129,24 @@ The planner does not generate or evaluate video.
 │       ├── intermediate_frames/
 │       ├── last_frame/
 │       └── reference_frames/
-└── .agents/skills/human-realism-behavior-planner/
-    ├── SKILL.md
-    ├── agents/openai.yaml
-    ├── references/
-    │   ├── behavior-planning.md
-    │   ├── motion-scheduling.md
-    │   ├── multi-image-conditioning.md
-    │   ├── output-contract.md
-    │   ├── scene-spec.schema.json
-    │   └── selection-policy.md
-    └── scripts/
-        ├── resolve_image_inputs.py
-        ├── resolve_motion_schedule.py
-        ├── validate_spec.py
-        └── test_*.py
+├── Gemini Omni 1.1 Prompt Writer/
+│   └── Gemini Omni 1.1 Prompting Guide.md
+└── .agents/skills/
+    ├── human-realism-behavior-planner/
+    │   ├── SKILL.md
+    │   ├── agents/openai.yaml
+    │   ├── references/
+    │   └── scripts/
+    └── gemini-omni-1-1-prompt-writer/
+        ├── SKILL.md
+        ├── agents/openai.yaml
+        ├── references/output-contract.md
+        └── scripts/
+            ├── validate_handoff.py
+            └── test_validate_handoff.py
 ```
 
-The two top-level areas have different responsibilities. `.agents/skills/human-realism-behavior-planner/` is the discoverable Codex skill package: it defines how Codex runs the planner. `Human Realism Behavior Planner/` contains the project knowledge and user-provided image inputs consumed by that skill.
+The top-level named folders contain the project knowledge and user inputs. `.agents/skills/` contains the discoverable Codex execution packages that tell Codex how to run each stage.
 
 ```mermaid
 flowchart LR
@@ -140,13 +159,17 @@ flowchart LR
     I --> P
     R --> P
     T --> P
+    P --> O["Planner output directory"]
+    O --> G["$gemini-omni-1-1-prompt-writer"]
+    PG["Gemini Omni 1.1 Prompt Writer/<br/>prompting guide"] --> G
+    G --> F["Gemini-ready prompt"]
 ```
 
-## Use the skill
+## Run the workflow
 
 Invoke **`$human-realism-behavior-planner`** with accessible images and the intended scene. For example:
 
-> Use $human-realism-behavior-planner with these images. Preserve the person's identity, plan the requested action and camera behavior, ask me about any material ambiguity, and return the JSON specification, readable specification, and generation prompt.
+> Use $human-realism-behavior-planner with these images. Preserve the person's identity, plan the requested action and camera behavior, ask me about any material ambiguity, and return the JSON specification, readable specification, and model-neutral generation brief.
 
 Place images in the matching role directories under `Human Realism Behavior Planner/images/`. Supply scene intent in the user request, then inventory the media:
 
@@ -173,6 +196,16 @@ Resolve normalized timing for a known destination duration:
 
 ```powershell
 python .agents/skills/human-realism-behavior-planner/scripts/resolve_motion_schedule.py path/to/scene_spec.json --duration 12 --output path/to/motion_schedule_resolved.json
+```
+
+Then invoke **`$gemini-omni-1-1-prompt-writer`** on the directory containing those outputs:
+
+> Use $gemini-omni-1-1-prompt-writer on `output/my-scene/` and write the Gemini Omni 1.1 prompt beside the planner artifacts.
+
+Validate the handoff directly when needed:
+
+```powershell
+python .agents/skills/gemini-omni-1-1-prompt-writer/scripts/validate_handoff.py "output/my-scene"
 ```
 
 ## Knowledge base
