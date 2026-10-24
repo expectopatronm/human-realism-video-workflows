@@ -773,10 +773,15 @@ class ValidationTests(unittest.TestCase):
         plan["frame_anchors"][0]["time_seconds"] = 2
         self.assertTrue(any("seconds and normalized" in error for error in self.errors(spec)))
 
-    def test_loop_intent_needs_both_endpoints(self):
+    def test_seamless_loop_intent_needs_both_endpoints(self):
+        spec = sample()
+        spec["input_plan"]["loop_intent"] = "seamless"
+        self.assertTrue(any("seamless loop intent" in error for error in self.errors(spec)))
+
+    def test_ping_pong_loop_accepts_first_frame_only(self):
         spec = sample()
         spec["input_plan"]["loop_intent"] = "ping_pong"
-        self.assertTrue(any("loop intent" in error for error in self.errors(spec)))
+        self.assertEqual(self.errors(spec), [])
 
     def test_cli_and_duplicate_json_keys(self):
         with tempfile.TemporaryDirectory() as directory:

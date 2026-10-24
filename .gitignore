@@ -6,3 +6,12 @@ Thumbs.db
 
 .idea/
 output/
+
+Human Realism Behavior Planner/images/first_frame/*
+Human Realism Behavior Planner/images/intermediate_frames/*
+Human Realism Behavior Planner/images/last_frame/*
+Human Realism Behavior Planner/images/reference_frames/*
+!Human Realism Behavior Planner/images/first_frame/.gitkeep
+!Human Realism Behavior Planner/images/intermediate_frames/.gitkeep
+!Human Realism Behavior Planner/images/last_frame/.gitkeep
+!Human Realism Behavior Planner/images/reference_frames/.gitkeep

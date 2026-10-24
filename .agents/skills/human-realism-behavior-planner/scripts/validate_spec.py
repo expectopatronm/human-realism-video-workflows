@@ -279,8 +279,8 @@ def check_input_plan(spec, refs, subjects):
     for conflict in plan["role_conflicts"]:
         if set(conflict["reference_ids"]) - refs:
             errors.append(f"input_plan/{conflict['id']}: unknown reference")
-    if plan["loop_intent"] != "none" and not {"first_frame", "last_frame"}.issubset(roles):
-        errors.append("input_plan: loop intent needs first and last anchors")
+    if plan["loop_intent"] == "seamless" and not {"first_frame", "last_frame"}.issubset(roles):
+        errors.append("input_plan: seamless loop intent needs first and last anchors")
 
     segments = plan["segments"]
     segment_ids = [segment["id"] for segment in segments]

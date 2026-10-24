@@ -13,6 +13,8 @@ Read scene intent from the user's request and scan `Human Realism Behavior Plann
 | `intermediate_frames/` | Zero or more interior anchors with explicit times. |
 | `reference_frames/` | Unpinned semantic evidence for identity, face, body, clothing, accessories, objects, environment, lighting, style, pose, or composition. |
 
+`seamless` loop intent requires both first and last anchors so their closure can be checked. `ping_pong` intent may use a first-frame-only plan because reverse playback retraces the generated motion; plan the generated endpoint as a stable zero-velocity turnaround with no one-way event crossing the boundary.
+
 Use `scripts/resolve_image_inputs.py` to inventory the folders before visual analysis. Intermediate timing belongs in `intermediate_frames/timings.json`. A value can be seconds or an object with `value` and `unit` set to `seconds` or `normalized`:
 
 ```json
