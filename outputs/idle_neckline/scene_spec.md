@@ -1,6 +1,6 @@
 # Right-hand neck and neckline idle
 
-Scene ID: idle_neckline_ping_pong. The sole input is the 2662 x 2662 first-frame image at 0 seconds. The user chose her anatomical right hand (image left), a 10-second source, 9:16 Flow output, and a 20-second forward-reverse ping-pong playback cycle.
+Scene ID: idle_neckline_ping_pong. The sole input is the 3726 × 2096 first-frame image at 0 seconds. The user chose her anatomical right hand (image left), a 10-second source, 16:9 Flow output, and a 20-second forward-reverse ping-pong playback cycle.
 
 The adult woman is already standing and facing the camera against a plain gray background. She looks directly forward with a reserved unsmiling expression and stable mouth shape. Rose-red hair, an image-right braid, a pale pink short-sleeve top, and light bottoms are visible. Both arms recede behind her back. Hands, feet, and much of the lower body are hidden or cropped. Hidden hand and foot positions are inferred only for anatomical continuity.
 
@@ -20,6 +20,6 @@ Gaze stays directly at the camera. The unsmiling expression and mouth shape rema
 
 Standing height, existing lean, frontal orientation, subject depth and scale, lower-body crop, gray background registration, and camera angle stay fixed. No standing up, sitting down, canonical straightening, or extra body reveal occurs. The small endpoint difference is quiet weight redistribution, not a new stance.
 
-The right hand emerges from behind the near torso, rises beside it to the right/back neck, transfers only to the adjacent right neckline, then returns along a compact close-to-body path. Every visible finger, hand, wrist, forearm, and elbow portion must stay fully inside the 9:16 output with clear background margin from left, right, top, and bottom boundaries throughout both travel paths and contacts. The elbow stays close to her side. No camera motion or subject-depth change supplies clearance; other body regions retain their intentional crop.
+The right hand emerges from behind the near torso, rises beside it to the right/back neck, transfers only to the adjacent right neckline, then returns along a compact close-to-body path. Every visible finger, hand, wrist, forearm, and elbow portion stays fully inside the 16:9 anchor with clear background margin throughout both travel paths and contacts. The elbow stays close to her side. No camera motion or subject-depth change supplies clearance; other body regions retain their intentional crop.
 
-The source image is square, so Flow's exact 9:16 crop cannot be checked before generation. The user chose this square-input workflow and asked us to proceed. Crop fit is recorded as uncertain rather than guaranteed. There is no last-frame anchor, so the exact final pose is controlled by prose and timing. Detailed component and global-rule traceability is in scene_spec.json.
+The source image is already 16:9 within normal pixel-rounding tolerance and is the strict composition authority. Its lateral background visibly contains the planned compact hand path, so envelope fit is recorded as fitting rather than uncertain. There is no last-frame anchor, so the exact final pose is controlled by prose and timing. Detailed component and global-rule traceability is in scene_spec.json.

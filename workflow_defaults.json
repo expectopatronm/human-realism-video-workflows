@@ -1,0 +1,11 @@
+{
+  "google_flow": {
+    "default_aspect_ratio": "16:9",
+    "allowed_aspect_ratios": [
+      "16:9",
+      "9:16"
+    ],
+    "require_aspect_matched_timeline_anchors": true,
+    "override_policy": "An explicit aspect ratio in the current user request overrides this default."
+  }
+}

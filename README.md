@@ -214,7 +214,7 @@ Then invoke **`$gemini-omni-1-1-prompt-writer`** on the directory containing tho
 
 > Use $gemini-omni-1-1-prompt-writer on `output/my-scene/` and write the Gemini Omni 1.1 prompt beside the planner artifacts.
 
-The Gemini writer requires the intended output ratio—`9:16` or `16:9`—and asks when it is missing. It treats padded source-image borders as framing allowance, not as permission to zoom or recompose the subject. Before writing, it checks semantic coverage of held human behavior such as arms/hands, facial pose, mouth/jaw/throat stability, support contacts, and suppressed physiology.
+The repository default is `16:9`, declared in `workflow_defaults.json`; an explicit `9:16` request overrides it. Timeline anchors should already match the selected ratio, so Flow does not need to reinterpret a square source. The Gemini writer treats the wider canvas as available action space, not as permission to zoom or recompose the subject. It still checks every hand, limb, prop, hair, and garment trajectory against the actual frame because `16:9` alone does not guarantee clearance. Before writing, it also checks semantic coverage of held human behavior such as facial pose, mouth/jaw/throat stability, support contacts, and suppressed physiology.
 
 Validate the handoff directly when needed:
 

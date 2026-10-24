@@ -14,6 +14,12 @@ REQUIRED = {
 }
 
 
+def aspect_matches(width: int, height: int, ratio: str) -> bool:
+    """Return whether dimensions match a ratio within pixel-rounding tolerance."""
+    ratio_width, ratio_height = map(int, ratio.split(":"))
+    return abs(width * ratio_height - height * ratio_width) <= max(ratio_width, ratio_height)
+
+
 def validate(directory: Path) -> list[str]:
     """Return package errors for a compiled Flow handoff.
 
@@ -58,6 +64,16 @@ def validate(directory: Path) -> list[str]:
         source = Path(image.get("path", ""))
         if not source.is_file():
             errors.append(f"{label} is unavailable: {source}")
+        width, height = image.get("width"), image.get("height")
+        measured_match = (
+            isinstance(width, int)
+            and isinstance(height, int)
+            and width > 0
+            and height > 0
+            and aspect_matches(width, height, manifest["aspect_ratio"])
+        )
+        if image.get("aspect_match") is not measured_match:
+            errors.append(f"{label} aspect_match disagrees with its dimensions")
         if image.get("strict_composition") and not image.get("aspect_match"):
             errors.append(f"{label} strict frame does not match selected aspect ratio")
     return errors

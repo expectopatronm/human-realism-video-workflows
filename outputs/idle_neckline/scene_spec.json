@@ -5,7 +5,7 @@
     {
       "id": "first",
       "source": "D:\\Personal\\Repos\\human-realism-video-workflows\\Human Realism Behavior Planner\\images\\first_frame\\1.png",
-      "observation": "Square 2662×2662 frontal image of an adult woman already standing. Both arms recede behind her back; the image-left arm is her right. She has rose-red hair with a braid on image right, amber patterned eyes directed at camera, a reserved unsmiling expression, a pale pink short-sleeve top, visible midriff and light bottoms against a plain gray background. Lower body and hands are cropped or occluded.",
+      "observation": "Landscape 3726×2096 frontal image of an adult woman already standing. Both arms recede behind her back; the image-left arm is her right. She has rose-red hair with a braid on image right, amber patterned eyes directed at camera, a reserved unsmiling expression, a pale pink short-sleeve top, visible midriff and light bottoms against a plain gray background. The 16:9 frame contains substantial lateral background clearance; lower body and hands remain cropped or occluded.",
       "confidence": "high"
     }
   ],
@@ -89,19 +89,19 @@
     },
     {
       "id": "aspect",
-      "constraint": "Google Flow output uses 9:16 and ten seconds.",
+      "constraint": "Google Flow output uses 16:9 and ten seconds.",
       "importance": "critical",
       "preferred_enforcement": "generation_setting",
       "evidence": "User-confirmed Flow choices.",
       "fallback": "Constrain motion and review in Flow; prompt text alone does not guarantee exact adherence."
     },
     {
-      "id": "square_input",
-      "constraint": "User elects to upload the square source directly; exact Flow crop is unverified.",
+      "id": "aspect_matched_input",
+      "constraint": "Use the supplied 16:9 first frame as the strict composition anchor.",
       "importance": "normal",
-      "preferred_enforcement": "unsupported",
-      "evidence": "User explicitly chose square input with 9:16 output.",
-      "fallback": "Constrain motion and review in Flow; prompt text alone does not guarantee exact adherence."
+      "preferred_enforcement": "image_anchor",
+      "evidence": "The user selected a 16:9-first workflow and the supplied frame is 3726×2096.",
+      "fallback": "If a future anchor does not match the chosen ratio, prepare an aspect-matched frame before generation."
     },
     {
       "id": "body_visibility",
@@ -965,8 +965,8 @@
               ]
             ],
             "path_extent": "Emerge from behind the near right torso, rise beside the right upper torso to the right/back neck, move only to the adjacent right neckline, then retrace a compact near-body path behind the torso.",
-            "edge_clearance": "All visible portions remain fully inside the selected portrait output with a clear background margin on every side; no fingertip crosses an edge.",
-            "boundary_risk": "moderate",
+            "edge_clearance": "All visible portions remain fully inside the 16:9 anchor with clear lateral background margin throughout the path; no fingertip approaches an edge.",
+            "boundary_risk": "low",
             "visibility_requirement": "fully_visible"
           },
           {
@@ -978,8 +978,8 @@
               ]
             ],
             "path_extent": "Follow the same close-to-body arc without extending laterally beyond the opening shoulder silhouette.",
-            "edge_clearance": "Remain completely within the portrait frame with visible margin at left, right, top and bottom.",
-            "boundary_risk": "moderate",
+            "edge_clearance": "Remain completely within the 16:9 frame with visible clearance from every edge.",
+            "boundary_risk": "low",
             "visibility_requirement": "fully_visible"
           },
           {
@@ -991,8 +991,8 @@
               ]
             ],
             "path_extent": "Stay tucked close to the right flank and upper torso; no winging toward image left or low dip toward the bottom edge.",
-            "edge_clearance": "Any visible elbow portion remains fully inside the portrait frame with clear background margin.",
-            "boundary_risk": "moderate",
+            "edge_clearance": "Any visible elbow portion remains fully inside the 16:9 frame with clear lateral background margin.",
+            "boundary_risk": "low",
             "visibility_requirement": "fully_visible"
           },
           {
@@ -1009,10 +1009,10 @@
             "visibility_requirement": "fully_visible"
           }
         ],
-        "overall_fit": "uncertain",
-        "safe_margin_policy": "Constrain the whole right-arm trajectory to a narrow near-body corridor with elbow tucked. If Flow centers or crops differently, prompt-only control cannot guarantee the margin.",
+        "overall_fit": "fits_with_margin",
+        "safe_margin_policy": "Use the supplied aspect-matched 16:9 anchor as the immutable composition and keep the whole right-arm trajectory within its existing background clearance.",
         "failure_policy": "constrain_motion",
-        "rationale": "The source is 2662x2662 square and the user elected Flow-side 9:16 framing; its exact crop is unavailable before generation. The constrained route is the safest plausible envelope without camera or subject-depth changes."
+        "rationale": "The 3726×2096 source already matches 16:9 within pixel-rounding tolerance and visibly provides sufficient horizontal room for the compact near-body path without camera or subject-depth changes."
       }
     },
     "subject_tracks": [
@@ -1760,11 +1760,11 @@
       "rationale": "Direct user choice resolves hidden-hand ambiguity."
     },
     {
-      "source_text": "Continue to use the square image, but write the story for a 9:16 crop.",
-      "issue_type": "contradiction",
+      "source_text": "Use the new 16:9 image because the wider composition is working well.",
+      "issue_type": "omission",
       "disposition": "corrected",
-      "resolution": "Use original square image in Flow first-frame slot and select 9:16 output, accepting uncertain crop placement.",
-      "rationale": "The user explicitly selected this workflow after the square-to-portrait conflict was explained."
+      "resolution": "Use the 3726×2096 image in the Flow first-frame slot and select 16:9 output.",
+      "rationale": "The user explicitly changed the project workflow to aspect-matched 16:9 inputs."
     },
     {
       "source_text": "She is already standing in the first frame.",
@@ -3233,7 +3233,7 @@
   "assumptions": [
     "The right hand starts behind her back at a height that permits a compact, near-body route; its exact hidden position is unobserved.",
     "Hidden feet are conservatively treated as planted support; their actual placement is not observed.",
-    "The user will upload the square first frame and select 9:16 in Flow. The exact portrait crop is controlled by Flow and cannot be measured from the source image."
+    "The user will upload the supplied 3726×2096 first frame and select 16:9 in Flow; its composition is the strict framing authority."
   ],
   "unresolved_conflicts": []
 }

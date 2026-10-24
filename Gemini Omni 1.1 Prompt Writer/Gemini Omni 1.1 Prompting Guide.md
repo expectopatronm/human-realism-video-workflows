@@ -11,11 +11,11 @@ Do not collapse every requirement into prose. Use the strongest available contro
 - **Prompt:** visible action, timing, expression, gaze, camera intent, and preservation language.
 - **Postprocess:** deterministic trimming, retiming, or playback behavior requested for the delivered asset.
 
-The Flow selections are authoritative. Confirm them before compiling exact seconds. Never infer aspect ratio from an uploaded image or claim that prompt text changes an incorrectly selected setting.
+The Flow selections are authoritative. Confirm them before compiling exact seconds. Resolve aspect ratio from the current request or the repository's `workflow_defaults.json`; never infer it from an uploaded image or claim that prompt text changes an incorrectly selected setting. This repository currently defaults to `16:9`, while an explicit `9:16` request overrides that default.
 
 ## Input-image preparation
 
-For strict composition, prepare first and last frames at the exact selected output aspect ratio before upload. A square image with extra border is still square and leaves portrait or landscape recomposition unresolved. Extend the canvas deterministically without rescaling or repositioning the subject pixels, then use that aspect-matched image in the corresponding Flow frame slot.
+For strict composition, prepare first and last frames at the exact selected output aspect ratio before upload. A square image with extra border is still square and leaves portrait or landscape recomposition unresolved. Extend the canvas deterministically without rescaling or repositioning the subject pixels, then use that aspect-matched image in the corresponding Flow frame slot. A genuine `16:9` source usually offers more lateral action space than a portrait source, but the writer must still inspect the actual subject placement and full motion envelope; the ratio by itself is not proof that hands or props will remain visible.
 
 Treat every image according to its declared role. Timeline anchors define exact states at particular times. Semantic references guide only their assigned identity, appearance, object, or environment property and must not become chronological frames.
 
