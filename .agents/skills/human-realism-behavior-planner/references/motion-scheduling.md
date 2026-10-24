@@ -55,7 +55,7 @@ Create one schedule per subject. Each schedule contains only beats whose `subjec
 
 Every model adapter must preserve:
 
-- the primary action's observable completion criterion, distinguishing cues, causal order, endpoint evidence, and fallback;
+- the primary action's observable completion criterion, distinguishing cues, causal order, endpoint evidence, fallback, activation risk, and safe prompt strategy; diagnostic causal detail remains internal when the selected strategy is holistic or ambiguity-preserving;
 - primary-phase order and relative duration;
 - active travel versus dwell, real-time tempo, velocity shape, and articulated kinematic chains;
 - the selected differences among repeated phases;

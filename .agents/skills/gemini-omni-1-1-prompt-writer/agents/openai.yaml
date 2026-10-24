@@ -1,4 +1,4 @@
 interface:
   display_name: "Gemini Omni 1.1 Prompt Writer"
-  short_description: "Compile behavior plans into Gemini video prompts"
-  default_prompt: "Use $gemini-omni-1-1-prompt-writer to convert my completed behavior-planner output into a Gemini Omni 1.1 prompt."
+  short_description: "Compile plans into image-only Google Flow packages"
+  default_prompt: "Use $gemini-omni-1-1-prompt-writer to convert my completed behavior-planner output into a paste-ready Gemini Omni 1.1 prompt and image-only Google Flow settings manifest."

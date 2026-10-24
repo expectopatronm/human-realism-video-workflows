@@ -165,10 +165,34 @@ def check_traceability(spec):
         if component["reference_observation"]["observed"] and not component["reference_observation"]["reference_ids"]:
             errors.append(f"component {component_id}: observations need reference IDs")
     errors.extend(check_input_plan(spec, refs, subjects))
+    errors.extend(check_control_requirements(spec))
     errors.extend(check_realism_selection(spec, selected_rules))
     errors.extend(check_behavior_plan(spec, subjects))
     errors.extend(check_spatial_plan(spec, subjects))
     errors.extend(check_motion_schedule(spec, subjects))
+    return errors
+
+
+def check_control_requirements(spec):
+    """Validate shot-critical constraints and their enforcement channels.
+
+    Args:
+        spec: Structurally valid scene specification.
+
+    Returns:
+        A list of enforcement-planning errors.
+    """
+    errors = []
+    requirements = spec["control_requirements"]
+    ids = [item["id"] for item in requirements]
+    if len(ids) != len(set(ids)):
+        errors.append("control_requirements: duplicate IDs")
+    for item in requirements:
+        if item["importance"] == "critical" and item["preferred_enforcement"] == "unsupported":
+            if not spec["unresolved_conflicts"]:
+                errors.append(
+                    f"control requirement {item['id']}: unsupported critical control needs an unresolved conflict"
+                )
     return errors
 
 
@@ -353,9 +377,12 @@ def check_behavior_plan(spec, subjects):
         support = control["support_state"]
         posture = control["posture_preservation"]
         observability = control["primary_action_observability"]
+        semantic = control["semantic_activation_control"]
+        face_state = control["facial_state_control"]
         if observability["observability"] == "not_applicable":
-            if observability["driver_visibility"] != "not_applicable" or observability["fallback_policy"] != "not_applicable":
-                errors.append(f"{label}: inapplicable action observability needs inapplicable driver and fallback")
+            if any(observability[key] != "not_applicable" for key in
+                   ("driver_visibility", "fallback_policy", "activation_risk", "prompt_strategy")):
+                errors.append(f"{label}: inapplicable action observability needs inapplicable driver, fallback, activation risk, and prompt strategy")
         else:
             if not observability["required_visible_cues"]:
                 errors.append(f"{label}: primary action needs at least one visible completion cue")
@@ -365,6 +392,24 @@ def check_behavior_plan(spec, subjects):
                 errors.append(f"{label}: limited action observability needs a fallback policy")
             if observability["fallback_policy"] == "reclassify" and not observability["fallback_action_class"]:
                 errors.append(f"{label}: reclassification needs a fallback action class")
+            if observability["activation_risk"] == "high" and observability["prompt_strategy"] == "direct_evidence":
+                errors.append(f"{label}: high-risk observability evidence cannot be exposed directly")
+            if observability["activation_risk"] in {"moderate", "high"} and not observability["activation_risk_factors"]:
+                errors.append(f"{label}: elevated activation risk needs an explanation")
+            if observability["prompt_strategy"] == "reclassify" and observability["fallback_policy"] != "reclassify":
+                errors.append(f"{label}: reclassified prompt strategy needs reclassify fallback")
+            if observability["prompt_strategy"] == "ask_user" and observability["fallback_policy"] != "ask_user":
+                errors.append(f"{label}: ask-user prompt strategy needs ask-user fallback")
+        if semantic["risk"] in {"moderate", "high"}:
+            if not semantic["trigger_terms"] or not semantic["implied_behaviors"]:
+                errors.append(f"{label}: elevated semantic activation risk needs triggers and implied behaviors")
+            if not semantic["held_channels"]:
+                errors.append(f"{label}: elevated semantic activation risk needs held channels")
+        if face_state["authority"] == "strict":
+            if not face_state["held_regions"]:
+                errors.append(f"{label}: strict facial state needs held regions")
+            if not face_state["prohibited_transitions"]:
+                errors.append(f"{label}: strict facial state needs prohibited transitions")
         layers = control["temporal_layers"]
         layer_ids = [layer["id"] for layer in layers]
         layer_map = {layer["id"]: layer for layer in layers}
@@ -642,6 +687,31 @@ def check_spatial_plan(spec, subjects):
             errors.append("spatial_plan: strict composition needs fixed scale, crop, and background")
         if composition["camera_substitution"] != "prohibited":
             errors.append("spatial_plan: strict composition must prohibit camera substitution")
+    envelope = composition["motion_envelope"]
+    tracked = envelope["tracked_elements"]
+    names = [item["element"] for item in tracked]
+    if len(names) != len(set(names)):
+        errors.append("spatial_plan: motion envelope has duplicate tracked elements")
+    for item in tracked:
+        for window in item["active_windows"]:
+            if window[0] >= window[1]:
+                errors.append(
+                    f"spatial_plan/motion envelope/{item['element']}: invalid active window"
+                )
+        if (
+            item["visibility_requirement"] == "fully_visible"
+            and item["boundary_risk"] == "high"
+            and envelope["failure_policy"] == "none"
+        ):
+            errors.append(
+                f"spatial_plan/motion envelope/{item['element']}: high-risk fully visible path needs mitigation"
+            )
+    if envelope["overall_fit"] in {"does_not_fit", "uncertain"}:
+        errors.append(
+            "spatial_plan: motion envelope must be resolved before prompt compilation"
+        )
+    if envelope["overall_fit"] == "fits_tightly" and envelope["failure_policy"] == "none":
+        errors.append("spatial_plan: tight motion envelope needs a mitigation policy")
     return errors
 
 

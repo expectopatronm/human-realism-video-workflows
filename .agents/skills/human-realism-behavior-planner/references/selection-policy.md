@@ -146,7 +146,8 @@ Before building the final prompt, verify that:
 - every scheduled secondary response has a physical or anatomical driver, lag, damping, and settling;
 - every restrained performance has an amplitude decision, quiet-region guards, and prohibited substitutions;
 - every subject has one dominant voluntary temporal layer, an explicit support state, posture invariants, behavioral reading, concurrency policy, variability policy, and loop policy;
-- every primary action has a completion criterion, visible distinguishing cues, confusable substitutions, and an observability/fallback decision;
+- every primary action has a completion criterion, visible distinguishing cues, confusable substitutions, an observability/fallback decision, prompt-activation risk, and a safe prompt strategy;
+- high-risk diagnostic cues remain internal rather than being promoted into a regional animation sequence, and action legibility never outranks behavioral reading or posture preservation;
 - every temporal layer has a prompt-exposure decision, with no subthreshold layer promoted to an explicit target;
 - strict framing has a reference-backed composition lock, visible boundary invariants, and an off-frame visibility boundary;
 - slow voluntary motion does not stretch blink, respiration, compensation, hair, fabric, or soft-tissue response into slow motion;

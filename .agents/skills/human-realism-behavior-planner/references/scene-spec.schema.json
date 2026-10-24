@@ -4,9 +4,9 @@
   "title": "Human Realism Behavior Plan",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "scene_id", "references", "input_plan", "motion_sources", "subjects", "intent", "realism_selection", "behavior_plan", "spatial_plan", "scene_physics", "motion_schedule", "intent_resolutions", "global_rules", "components", "assumptions", "unresolved_conflicts"],
+  "required": ["schema_version", "scene_id", "references", "input_plan", "control_requirements", "motion_sources", "subjects", "intent", "realism_selection", "behavior_plan", "spatial_plan", "scene_physics", "motion_schedule", "intent_resolutions", "global_rules", "components", "assumptions", "unresolved_conflicts"],
   "properties": {
-    "schema_version": {"const": "1.10"},
+    "schema_version": {"const": "1.13"},
     "scene_id": {"$ref": "#/$defs/id"},
     "references": {
       "type": "array", "minItems": 1,
@@ -22,6 +22,10 @@
       }
     },
     "input_plan": {"$ref": "#/$defs/inputPlan"},
+    "control_requirements": {
+      "type": "array", "minItems": 1,
+      "items": {"$ref": "#/$defs/controlRequirement"}
+    },
     "motion_sources": {
       "type": "array",
       "items": {
@@ -378,6 +382,18 @@
     "priority": {"enum": ["critical", "high", "normal", "low"]},
     "cueStatus": {"enum": ["required", "conditional", "suppressed", "not_visible", "not_applicable", "uncertain"]},
     "baselineCue": {"enum": ["respiration", "blinking", "ocular_fixation", "facial_tonus", "postural_micro_adjustment"]},
+    "controlRequirement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "constraint", "importance", "preferred_enforcement", "evidence", "fallback"],
+      "properties": {
+        "id": {"$ref": "#/$defs/id"},
+        "constraint": {"type": "string", "minLength": 1},
+        "importance": {"$ref": "#/$defs/priority"},
+        "preferred_enforcement": {"enum": ["prompt", "image_anchor", "generation_setting", "postprocess", "hybrid", "unsupported"]},
+        "evidence": {"type": "string", "minLength": 1},
+        "fallback": {"type": "string", "minLength": 1}
+      }
+    },
     "normalizedWindow": {
       "type": "array",
       "minItems": 2,
@@ -496,7 +512,7 @@
     },
     "compositionControl": {
       "type": "object", "additionalProperties": false,
-      "required": ["authority", "reference_id", "subject_scale", "crop", "background_registration", "visible_boundary_invariants", "off_frame_regions", "permitted_screen_space_motion", "camera_substitution"],
+      "required": ["authority", "reference_id", "subject_scale", "crop", "background_registration", "visible_boundary_invariants", "off_frame_regions", "permitted_screen_space_motion", "camera_substitution", "motion_envelope"],
       "properties": {
         "authority": {"enum": ["strict", "controlled", "free"]},
         "reference_id": {"$ref": "#/$defs/id"},
@@ -506,7 +522,34 @@
         "visible_boundary_invariants": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
         "off_frame_regions": {"$ref": "#/$defs/textList"},
         "permitted_screen_space_motion": {"type": "string", "minLength": 1},
-        "camera_substitution": {"enum": ["prohibited", "controlled", "allowed"]}
+        "camera_substitution": {"enum": ["prohibited", "controlled", "allowed"]},
+        "motion_envelope": {"$ref": "#/$defs/motionEnvelopeControl"}
+      }
+    },
+    "motionEnvelopeControl": {
+      "type": "object", "additionalProperties": false,
+      "required": ["tracked_elements", "overall_fit", "safe_margin_policy", "failure_policy", "rationale"],
+      "properties": {
+        "tracked_elements": {
+          "type": "array", "minItems": 1,
+          "items": {"$ref": "#/$defs/motionEnvelopeElement"}
+        },
+        "overall_fit": {"enum": ["fits_with_margin", "fits_tightly", "does_not_fit", "uncertain"]},
+        "safe_margin_policy": {"type": "string", "minLength": 1},
+        "failure_policy": {"enum": ["none", "constrain_motion", "prepare_wider_canvas", "request_different_anchor", "ask_user", "intentional_crop"]},
+        "rationale": {"type": "string", "minLength": 1}
+      }
+    },
+    "motionEnvelopeElement": {
+      "type": "object", "additionalProperties": false,
+      "required": ["element", "active_windows", "path_extent", "edge_clearance", "boundary_risk", "visibility_requirement"],
+      "properties": {
+        "element": {"type": "string", "minLength": 1},
+        "active_windows": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/normalizedWindow"}},
+        "path_extent": {"type": "string", "minLength": 1},
+        "edge_clearance": {"type": "string", "minLength": 1},
+        "boundary_risk": {"enum": ["low", "moderate", "high"]},
+        "visibility_requirement": {"enum": ["fully_visible", "intentional_crop", "may_exit_frame"]}
       }
     },
     "cameraTrack": {
@@ -582,12 +625,14 @@
     },
     "performanceControl": {
       "type": "object", "additionalProperties": false,
-      "required": ["behavioral_intent", "support_state", "posture_preservation", "primary_action_observability", "temporal_layers", "concurrency_policy", "variability_policy", "loop_policy"],
+      "required": ["behavioral_intent", "support_state", "posture_preservation", "primary_action_observability", "semantic_activation_control", "facial_state_control", "temporal_layers", "concurrency_policy", "variability_policy", "loop_policy"],
       "properties": {
         "behavioral_intent": {"$ref": "#/$defs/behavioralIntent"},
         "support_state": {"$ref": "#/$defs/supportState"},
         "posture_preservation": {"$ref": "#/$defs/posturePreservation"},
         "primary_action_observability": {"$ref": "#/$defs/primaryActionObservability"},
+        "semantic_activation_control": {"$ref": "#/$defs/semanticActivationControl"},
+        "facial_state_control": {"$ref": "#/$defs/facialStateControl"},
         "temporal_layers": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/temporalLayer"}},
         "concurrency_policy": {"$ref": "#/$defs/concurrencyPolicy"},
         "variability_policy": {"$ref": "#/$defs/variabilityPolicy"},
@@ -596,7 +641,7 @@
     },
     "primaryActionObservability": {
       "type": "object", "additionalProperties": false,
-      "required": ["action_class", "driver_visibility", "observability", "completion_criterion", "required_visible_cues", "confusable_substitutions", "initiation_order", "endpoint_evidence", "fallback_policy", "fallback_action_class"],
+      "required": ["action_class", "driver_visibility", "observability", "completion_criterion", "required_visible_cues", "confusable_substitutions", "initiation_order", "endpoint_evidence", "fallback_policy", "fallback_action_class", "activation_risk", "activation_risk_factors", "prompt_strategy"],
       "properties": {
         "action_class": {"type": "string", "minLength": 1},
         "driver_visibility": {"enum": ["direct", "partial", "hidden", "not_applicable"]},
@@ -607,7 +652,34 @@
         "initiation_order": {"type": "array", "items": {"type": "string", "minLength": 1}},
         "endpoint_evidence": {"$ref": "#/$defs/nullableText"},
         "fallback_policy": {"enum": ["ask_user", "constrain_to_visible", "reclassify", "accept_ambiguity", "not_applicable"]},
-        "fallback_action_class": {"$ref": "#/$defs/nullableText"}
+        "fallback_action_class": {"$ref": "#/$defs/nullableText"},
+        "activation_risk": {"enum": ["low", "moderate", "high", "not_applicable"]},
+        "activation_risk_factors": {"$ref": "#/$defs/textList"},
+        "prompt_strategy": {"enum": ["direct_evidence", "holistic_outcome", "reclassify", "ask_user", "accept_ambiguity", "not_applicable"]}
+      }
+    },
+    "semanticActivationControl": {
+      "type": "object", "additionalProperties": false,
+      "required": ["risk", "trigger_terms", "implied_behaviors", "intended_visible_meaning", "prompt_safe_description", "held_channels"],
+      "properties": {
+        "risk": {"enum": ["low", "moderate", "high", "not_applicable"]},
+        "trigger_terms": {"$ref": "#/$defs/textList"},
+        "implied_behaviors": {"$ref": "#/$defs/textList"},
+        "intended_visible_meaning": {"type": "string", "minLength": 1},
+        "prompt_safe_description": {"type": "string", "minLength": 1},
+        "held_channels": {"$ref": "#/$defs/textList"}
+      }
+    },
+    "facialStateControl": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authority", "expression_category", "allowed_changes", "held_regions", "prohibited_transitions", "image_anchor_policy"],
+      "properties": {
+        "authority": {"enum": ["strict", "controlled", "flexible"]},
+        "expression_category": {"type": "string", "minLength": 1},
+        "allowed_changes": {"$ref": "#/$defs/textList"},
+        "held_regions": {"$ref": "#/$defs/textList"},
+        "prohibited_transitions": {"$ref": "#/$defs/textList"},
+        "image_anchor_policy": {"enum": ["required", "preferred", "not_required"]}
       }
     },
     "behavioralIntent": {

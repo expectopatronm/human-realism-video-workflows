@@ -1,0 +1,28 @@
+{
+  "execution_surface": "google_flow_web",
+  "model": "gemini_omni_1_1",
+  "duration_seconds": 10,
+  "aspect_ratio": "9:16",
+  "prompt_file": "gemini_omni_1_1_prompt.txt",
+  "image_only": true,
+  "image_inputs": [
+    {
+      "path": "D:\\Personal\\Repos\\human-realism-video-workflows\\Human Realism Behavior Planner\\images\\first_frame\\1.png",
+      "role": "first_frame",
+      "width": 2662,
+      "height": 2662,
+      "aspect_match": false,
+      "strict_composition": false,
+      "note": "User chose direct square upload with 9:16 Flow output. Flow's exact crop cannot be guaranteed by this package."
+    }
+  ],
+  "video_inputs": [],
+  "postprocess": [
+    {
+      "operation": "forward_reverse_ping_pong",
+      "source_duration_seconds": 10,
+      "playback_duration_seconds": 20,
+      "boundary": "Reverse at the fully settled generated endpoint; avoid a duplicate endpoint frame if the editor adds one."
+    }
+  ]
+}

@@ -118,6 +118,22 @@ A held expression may contain living tonus without changing the expression categ
 
 When the user requests a fixed expression, default unrequested mouth, jaw, throat, brow, and cheek actions to held. Blinking does not authorize gaze drift, mouth motion, a head reset, or a simultaneous full-face change. Head tilt does not authorize loss of facial orientation or large neck translation.
 
+Record `facial_state_control` independently from the head and gaze channels. State its authority, the reference expression category, allowed facial changes, held regions, prohibited transitions, and whether another image anchor is required or preferred. A strict facial lock normally holds lip corners, lip aperture, cheeks, brows, jaw, and throat while allowing only the explicitly requested eyelid or gaze event. Do not treat head pose, gaze engagement, or a social gesture as permission to change expression.
+
+## Semantic bundle control
+
+Behavior labels can carry correlated motion, expression, camera, or staging priors beyond their literal wording. Audit social, emotional, cinematic, and spatial terms before they reach a generation prompt. Examples include greeting, acknowledgment, curiosity, confidence, sensuality, hero shot, reveal, center, settle, and approach. The exact risky terms vary by scene; do not maintain a fixed blacklist.
+
+For each materially risky label, record:
+
+- the term or phrase;
+- the unrequested behaviors it may imply;
+- the smallest visible meaning actually intended;
+- a prompt-safe description using explicit allowed channels;
+- the channels that remain held.
+
+Use the safe description downstream. A social meaning may be communicated by one head or gaze event while the facial expression remains unchanged. A spatial word such as `center` must identify whether it refers to screen position, body orientation, gaze, or balance; otherwise replace it with an unambiguous visible relationship.
+
 ## Causal action observability
 
 An action label states intent; it does not prove that the planned visible motion communicates that action. For every primary action, define:
@@ -133,6 +149,22 @@ Use only regions and relationships supported by the actual framing. Hidden mecha
 
 When observability is insufficient, ask for evidence, constrain the result to what can be shown, reclassify the planned visible action, or explicitly accept ambiguity. Never silently strengthen an intended action into a verified one.
 
+### Prompt activation risk
+
+Observable evidence is a diagnostic requirement inside the plan, not automatically an instruction to animate every evidentiary region. Assess how likely the evidence wording is to create more motion than the behavior permits.
+
+Activation risk rises when the proposed prompt would:
+
+- name several body regions as separate sequential movers;
+- isolate the waist, pelvis, abdomen, chest, neck, or face as a local performance target;
+- require visibly distinct endpoint poses for behavior intended to remain idle or restrained;
+- translate a hidden driver into an explicit visible anatomical chain;
+- conflict with the requested everyday reading, posture invariants, motion budget, or held regions.
+
+Record `activation_risk`, its reasons, and a `prompt_strategy`. Use `direct_evidence` only when the driver and required cues are visible and low risk. Use `holistic_outcome` when the model should receive the overall visible result without the internal diagnostic chain. Use `reclassify`, `ask_user`, or `accept_ambiguity` when exact proof cannot be made safe.
+
+Behavioral reading and posture preservation outrank diagnostic strength. For restrained behavior, reduced mechanical certainty is preferable to an instruction that turns waiting into posing, a balance adjustment into choreography, or a held posture into rising or lowering. Do not use more anatomical detail as a substitute for missing visual evidence.
+
 ## Preflight
 
 Before finalizing a quiet human performance, confirm that:
@@ -142,6 +174,8 @@ Before finalizing a quiet human performance, confirm that:
 - held regions and prohibited substitutions are explicit;
 - respiration cannot be mistaken for swallowing, speech, gasping, or a shrug;
 - facial freedom matches the requested expression;
+- semantic labels have been decomposed into allowed visible channels and cannot silently authorize expression, gesture, camera, or posture changes;
+- strict facial state control separates head pose and gaze from lips, cheeks, brows, jaw, and throat;
 - plainly visible concurrent cues remain within the motion budget;
 - support topology, pelvis-height policy, and posture-normalization prohibitions are explicit;
 - behavioral intent cannot be misread as a more performative action;
@@ -150,3 +184,5 @@ Before finalizing a quiet human performance, confirm that:
 - starts, peaks, reversals, and stops are not globally synchronized;
 - a first-frame-only, long-duration, or hidden-support plan is identified as higher uncertainty;
 - the generation brief preserves every human-behavior hard invariant.
+- observable evidence has a safe prompt strategy, and high-risk evidence is not exposed as a regional animation sequence;
+- increasing action legibility does not change the intended behavioral category, stature, support state, or crop content.
