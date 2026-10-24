@@ -14,6 +14,8 @@ For idle, restrained, held, looped, micro-realistic, hidden-support, or one-anch
 
 Before the seven behavior channels, build `performance_control`. Separate behavioral intent from expression; record support contacts and pelvis-height policy; state posture invariants and prohibited normalization; assign voluntary, compensatory, biological, passive, and micro-variation layers their own time scales; define salient versus subthreshold concurrency; bound variation; and identify loop-reversal-sensitive cues. Use exactly one dominant voluntary layer per subject.
 
+Define `primary_action_observability` before scheduling. Name the intended causal action, whether its driver is visible, the criterion that makes the action complete, the visible cues that distinguish it, plausible misleading substitutes, the expected initiation order, endpoint evidence, and the fallback if the crop is inadequate. Apply this uniformly whenever visible motion could support more than one causal interpretation. Do not promote intent into a verified action claim without distinguishing evidence.
+
 Assign each temporal layer a prompt exposure. The primary voluntary layer is `explicit`. Use `compact` for a secondary cue whose visible result must be named once, `implicit` when ordinary model behavior should supply it without a separate instruction, and `omit` when naming it is more likely to exaggerate it than help. Subthreshold is an amplitude class, not a reason to enumerate more prompt actions.
 
 ## Behavior channels
@@ -34,7 +36,7 @@ Keep the five baseline vitality cues in `realism_selection`. Explicitly decide w
 
 ## Scene physics and visibility
 
-Record support and object contact by subject and beat, linking contact surfaces to known objects where possible. A grip must precede lifting, a planted foot must support weight transfer, and released objects must continue under plausible gravity and momentum. Record gravity and other force fields with qualitative strength and direction. Record environmental drivers only when observed or requested. Use typed `visual_dependencies` for material changes in occlusion, shadow, reflection, illumination, or camera perspective caused by a beat, force, contact, or environmental driver. Do not invent numerical mass, friction coefficients, hidden object geometry, or precise forces from a single image. Use `unknown` when the evidence does not support a qualitative class.
+Record support and object contact by subject and beat, linking contact surfaces to known objects where possible. Required contact must precede the motion it enables, and released objects must continue under plausible gravity and momentum. Record gravity and other force fields with qualitative strength and direction. Record environmental drivers only when observed or requested. Use typed `visual_dependencies` for material changes in occlusion, shadow, reflection, illumination, or camera perspective caused by a beat, force, contact, or environmental driver. Do not invent numerical mass, friction coefficients, hidden object geometry, or precise forces from a single image. Use `unknown` when the evidence does not support a qualitative class.
 
 For close facial shots, prioritize facial and head dynamics; for wider shots, prioritize body articulation, support, clothing, and spatial continuity. If the action reveals an unseen surface or changes viewpoint substantially, preserve known identity and mark unseen details as uncertain. A prompt cannot guarantee identity or physical accuracy; the plan states the intended constraints.
 

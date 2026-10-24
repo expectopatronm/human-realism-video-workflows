@@ -101,7 +101,7 @@ Unless the user requests otherwise:
 - keep shoulder elevation at zero or nearly zero;
 - keep the jaw, lip aperture, tongue, throat, chin, head height, and gaze target stable;
 - do not add a throat bob, chin lift, mouth opening, head recoil, or whole-body vertical pulse;
-- do not align the breath reversal with every weight-shift arrival or blink.
+- do not align the breath reversal with every primary-action arrival or blink.
 
 If the lips are already parted, preserve the observed aperture rather than using it as permission for respiratory mouth motion. A visible swallow is a separate extended-physiology action and must be explicitly requested or causally justified.
 
@@ -118,23 +118,20 @@ A held expression may contain living tonus without changing the expression categ
 
 When the user requests a fixed expression, default unrequested mouth, jaw, throat, brow, and cheek actions to held. Blinking does not authorize gaze drift, mouth motion, a head reset, or a simultaneous full-face change. Head tilt does not authorize loss of facial orientation or large neck translation.
 
-## Weight transfer and support
+## Causal action observability
 
-For an in-place weight transfer:
+An action label states intent; it does not prove that the planned visible motion communicates that action. For every primary action, define:
 
-- both feet remain planted unless a step is requested;
-- pressure redistribution precedes visible pelvis motion;
-- the center of mass travels continuously within the support base;
-- pelvis, spine, and shoulders counterbalance rather than translating as one rigid cutout;
-- head response is smaller than torso response unless explicitly requested;
-- hidden support mechanics must not reveal invented feet or change the crop;
-- observed arm/hand placement remains held unless needed for balance and authorized by the user;
-- deceleration may drive one damped secondary response, never repeated decorative bouncing.
-- preserve starting pelvis height and lower-limb flexion unless vertical travel is explicitly requested;
-- use slow voluntary transfer with normal-speed, low-amplitude physical response rather than globally slowed motion;
-- vary tiny head and facial support corrections independently within bounds instead of tying a visible head tilt to every arrival.
+- whether its causal driver is directly visible, partially visible, hidden, or inapplicable;
+- the visible criterion that makes the action complete;
+- the smallest set of observable cues that distinguishes it from plausible substitutes;
+- the expected causal initiation and propagation order;
+- the endpoint or state-change evidence, when applicable;
+- the fallback when the available crop or references cannot make the distinction.
 
-If the support base is invisible and the requested magnitude cannot be inferred conservatively, ask for the magnitude or constrain the movement rather than inventing a large shift.
+Use only regions and relationships supported by the actual framing. Hidden mechanisms may constrain the plan without becoming invented visible facts or prompt targets. Do not treat overall movement direction, amplitude, or an action name as sufficient evidence when a different action could produce the same visible path.
+
+When observability is insufficient, ask for evidence, constrain the result to what can be shown, reclassify the planned visible action, or explicitly accept ambiguity. Never silently strengthen an intended action into a verified one.
 
 ## Preflight
 

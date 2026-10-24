@@ -352,6 +352,19 @@ def check_behavior_plan(spec, subjects):
         control = plan["performance_control"]
         support = control["support_state"]
         posture = control["posture_preservation"]
+        observability = control["primary_action_observability"]
+        if observability["observability"] == "not_applicable":
+            if observability["driver_visibility"] != "not_applicable" or observability["fallback_policy"] != "not_applicable":
+                errors.append(f"{label}: inapplicable action observability needs inapplicable driver and fallback")
+        else:
+            if not observability["required_visible_cues"]:
+                errors.append(f"{label}: primary action needs at least one visible completion cue")
+            if observability["driver_visibility"] in {"partial", "hidden"} and len(observability["initiation_order"]) < 2:
+                errors.append(f"{label}: partially visible or hidden driver needs a visible causal sequence")
+            if observability["observability"] in {"partial", "insufficient"} and observability["fallback_policy"] == "not_applicable":
+                errors.append(f"{label}: limited action observability needs a fallback policy")
+            if observability["fallback_policy"] == "reclassify" and not observability["fallback_action_class"]:
+                errors.append(f"{label}: reclassification needs a fallback action class")
         layers = control["temporal_layers"]
         layer_ids = [layer["id"] for layer in layers]
         layer_map = {layer["id"]: layer for layer in layers}

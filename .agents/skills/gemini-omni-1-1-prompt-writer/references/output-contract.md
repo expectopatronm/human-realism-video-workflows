@@ -15,6 +15,8 @@ The file contains only the ready-to-paste Gemini Omni 1.1 prompt. It must:
 - preserve behavioral intent, support topology, pelvis height, starting-posture invariants, and every prohibited pose normalization;
 - enforce strict composition with one positive first-frame screen-space lock covering subject scale, crop boundaries, registered background, and visible landmarks;
 - keep off-frame anatomy and causal mechanics out of the prompt unless the shot intentionally reveals them;
+- express the primary action through its visible distinguishing cues, causal order, and endpoint evidence rather than its label alone;
+- never claim an action more strongly than its observability and fallback permit;
 - include explicit temporal layers, mention compact layers once, and leave implicit or omitted subthreshold layers unnamed;
 - preserve exact major dwell intervals rather than merely requiring arrival by their endpoints;
 - apply slow timing only to the layers marked slow while retaining normal-speed biological, compensatory, and material response;
