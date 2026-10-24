@@ -85,6 +85,10 @@ Separate behavioral intent from facial expression. A sensual, stern, neutral, or
 
 Natural idle behavior is bounded and aperiodic, not frozen and not random. Permit minute non-cyclic differences in acceleration, dwell, inter-region lag, fixation correction, head support, eyelid/cheek/brow tonus, and settling. Keep mouth, jaw, throat, gaze target, support state, and expression category invariant when required. A generated clip remains deterministic on replay; genuine long-run non-repetition requires multiple variants, a longer source, or a procedural playback system.
 
+Do not assume every planned micro-cue should be named in a generation prompt. A video model may amplify any named motion into a salient action. Mark ordinary subthreshold vitality as implicit or omitted unless its absence has already been demonstrated and a compact instruction is necessary. Never solve a weak result by accumulating a catalog of additional micro-actions.
+
+Keep causal planning details behind a visibility boundary. Off-frame feet, knees, hips, contacts, and support mechanics can constrain the visible result without being named to a model when the shot must not reveal them. Phrase the visible outcome—stable scale, crop, vertical position, and restrained internal deformation—instead.
+
 ## Quiet respiration
 
 Quiet respiration must remain distinct from swallowing, drinking, gasping, speaking, sighing, or exertion.

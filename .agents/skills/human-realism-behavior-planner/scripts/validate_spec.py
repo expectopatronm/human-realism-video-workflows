@@ -360,6 +360,8 @@ def check_behavior_plan(spec, subjects):
         primary_layers = [layer for layer in layers if layer["kind"] == "primary_voluntary"]
         if len(primary_layers) != 1:
             errors.append(f"{label}: performance control needs exactly one primary voluntary layer")
+        elif primary_layers[0]["prompt_exposure"] != "explicit":
+            errors.append(f"{label}: primary voluntary layer must be explicit in the generation brief")
         concurrency = control["concurrency_policy"]
         dominant_id = concurrency["dominant_track_id"]
         if dominant_id not in layer_map:
@@ -372,6 +374,9 @@ def check_behavior_plan(spec, subjects):
         if any(layer_map[item]["amplitude"] not in {"subthreshold", "barely_perceptible"}
                for item in subthreshold if item in layer_map):
             errors.append(f"{label}: subthreshold tracks must stay below salient amplitude")
+        if any(layer_map[item]["prompt_exposure"] == "explicit"
+               for item in subthreshold if item in layer_map):
+            errors.append(f"{label}: subthreshold tracks cannot be explicit prompt targets")
         channels_by_name = {item["channel"]: item for item in plan["channels"]}
         support_dependent = any(
             channels_by_name.get(name, {}).get("status") == "active"
@@ -565,6 +570,7 @@ def check_spatial_plan(spec, subjects):
     """
     errors = []
     plan = spec["spatial_plan"]
+    references = {item["id"] for item in spec["references"]}
     beats = {beat["id"] for beat in spec["intent"]["beats"]}
     subject_beats = {
         subject: {
@@ -613,6 +619,16 @@ def check_spatial_plan(spec, subjects):
         errors.append("spatial_plan: invalid camera window")
     if camera["status"] == "static" and camera["depth_change"] != "none":
         errors.append("spatial_plan: static camera cannot change depth")
+    composition = plan["composition_control"]
+    if composition["reference_id"] not in references:
+        errors.append("spatial_plan: composition control cites an unknown reference")
+    if composition["authority"] == "strict":
+        if any(composition[field] != "fixed" for field in {
+            "subject_scale", "crop", "background_registration",
+        }):
+            errors.append("spatial_plan: strict composition needs fixed scale, crop, and background")
+        if composition["camera_substitution"] != "prohibited":
+            errors.append("spatial_plan: strict composition must prohibit camera substitution")
     return errors
 
 

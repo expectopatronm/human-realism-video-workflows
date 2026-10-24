@@ -62,7 +62,7 @@ flowchart TD
         FACS --> BEHAVIOR
         LIFE --> BEHAVIOR
 
-        INPUTPLAN --> SPACE["9 · spatial_plan<br/>camera and subject paths · interaction · occlusion"]
+        INPUTPLAN --> SPACE["9 · spatial_plan<br/>composition lock · camera and subject paths · interaction · occlusion"]
         INPUTPLAN --> PHYSICS["10 · scene_physics<br/>support · contact · forces · objects · environment"]
         BEHAVIOR --> SCHEDULE["11 · motion_schedule<br/>phases · windows · variation · priority · anti-synchrony"]
         SPACE --> SCHEDULE
@@ -73,7 +73,7 @@ flowchart TD
         SELECT --> DEP["13 · Resolve dependencies<br/>identity · anatomy · contact · camera · passive response · anchors"]
         DEP --> CHECK{"14 · Preflight valid?"}
         CHECK -- revise --> GATE
-        CHECK -- yes --> JSON["A · scene_spec.json<br/>schema 1.8 source of truth"]
+        CHECK -- yes --> JSON["A · scene_spec.json<br/>schema 1.9 source of truth"]
         CHECK -- yes --> READABLE["B · scene_spec.md<br/>human-readable plan"]
         CHECK -- yes --> PROMPT["C · generation_prompt.txt<br/>model-neutral generation brief"]
     end
@@ -102,6 +102,8 @@ flowchart TD
 - Explicit support topology, pelvis-height policy, posture invariants, and pose-normalization guards
 - Independent clocks for voluntary action, compensation, biology, passive materials, and micro-variation
 - Bounded aperiodic head, gaze, and facial support variation without expression drift
+- Prompt-exposure control so subthreshold planning detail does not become exaggerated model action
+- Strict composition control for subject scale, crop, background registration, visible boundaries, and off-frame regions
 - Explicit separation of quiet breathing from swallowing, mouth motion, gasping, shrugging, and head recoil
 - Laban Body, Space, Shape, and Effort movement qualities
 - Visibility-aware facial action planning
@@ -116,7 +118,7 @@ flowchart TD
 
 The planner produces exactly three artifacts:
 
-1. `scene_spec.json` — canonical structured plan matching schema 1.8
+1. `scene_spec.json` — canonical structured plan matching schema 1.9
 2. `scene_spec.md` — equivalent human-readable specification
 3. `generation_prompt.txt` — model-neutral generation brief derived from the plan
 

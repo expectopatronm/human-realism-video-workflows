@@ -6,7 +6,7 @@
   "additionalProperties": false,
   "required": ["schema_version", "scene_id", "references", "input_plan", "motion_sources", "subjects", "intent", "realism_selection", "behavior_plan", "spatial_plan", "scene_physics", "motion_schedule", "intent_resolutions", "global_rules", "components", "assumptions", "unresolved_conflicts"],
   "properties": {
-    "schema_version": {"const": "1.8"},
+    "schema_version": {"const": "1.9"},
     "scene_id": {"$ref": "#/$defs/id"},
     "references": {
       "type": "array", "minItems": 1,
@@ -485,12 +485,28 @@
     },
     "spatialPlan": {
       "type": "object", "additionalProperties": false,
-      "required": ["camera_track", "subject_tracks", "interactions", "occlusion_events"],
+      "required": ["camera_track", "composition_control", "subject_tracks", "interactions", "occlusion_events"],
       "properties": {
         "camera_track": {"$ref": "#/$defs/cameraTrack"},
+        "composition_control": {"$ref": "#/$defs/compositionControl"},
         "subject_tracks": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/subjectTrack"}},
         "interactions": {"type": "array", "items": {"$ref": "#/$defs/interaction"}},
         "occlusion_events": {"type": "array", "items": {"$ref": "#/$defs/occlusionEvent"}}
+      }
+    },
+    "compositionControl": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authority", "reference_id", "subject_scale", "crop", "background_registration", "visible_boundary_invariants", "off_frame_regions", "permitted_screen_space_motion", "camera_substitution"],
+      "properties": {
+        "authority": {"enum": ["strict", "controlled", "free"]},
+        "reference_id": {"$ref": "#/$defs/id"},
+        "subject_scale": {"enum": ["fixed", "controlled", "variable"]},
+        "crop": {"enum": ["fixed", "controlled", "variable"]},
+        "background_registration": {"enum": ["fixed", "controlled", "variable"]},
+        "visible_boundary_invariants": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "off_frame_regions": {"$ref": "#/$defs/textList"},
+        "permitted_screen_space_motion": {"type": "string", "minLength": 1},
+        "camera_substitution": {"enum": ["prohibited", "controlled", "allowed"]}
       }
     },
     "cameraTrack": {
@@ -611,7 +627,7 @@
     },
     "temporalLayer": {
       "type": "object", "additionalProperties": false,
-      "required": ["id", "kind", "driver", "time_scale", "amplitude", "behavior", "preserve_real_time_response"],
+      "required": ["id", "kind", "driver", "time_scale", "amplitude", "behavior", "preserve_real_time_response", "prompt_exposure"],
       "properties": {
         "id": {"$ref": "#/$defs/id"},
         "kind": {"enum": ["primary_voluntary", "active_compensation", "physiology", "passive_dynamics", "micro_variation"]},
@@ -619,7 +635,8 @@
         "time_scale": {"enum": ["slow_deliberate", "real_time", "biological", "material_response"]},
         "amplitude": {"enum": ["subthreshold", "barely_perceptible", "restrained", "readable", "pronounced"]},
         "behavior": {"type": "string", "minLength": 1},
-        "preserve_real_time_response": {"type": "boolean"}
+        "preserve_real_time_response": {"type": "boolean"},
+        "prompt_exposure": {"enum": ["explicit", "compact", "implicit", "omit"]}
       }
     },
     "concurrencyPolicy": {

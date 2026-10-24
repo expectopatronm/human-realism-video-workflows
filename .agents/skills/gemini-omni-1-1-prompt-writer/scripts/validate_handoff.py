@@ -54,8 +54,8 @@ def validate_handoff(output_dir: Path) -> list[str]:
     missing_keys = sorted(REQUIRED_ROOT_KEYS - set(spec))
     if missing_keys:
         errors.append(f"scene_spec.json is missing root keys: {', '.join(missing_keys)}")
-    if spec.get("schema_version") != "1.8":
-        errors.append("scene_spec.json must use schema_version 1.8")
+    if spec.get("schema_version") != "1.9":
+        errors.append("scene_spec.json must use schema_version 1.9")
     if not spec.get("scene_id"):
         errors.append("scene_spec.json has no scene_id")
     if not spec.get("references"):

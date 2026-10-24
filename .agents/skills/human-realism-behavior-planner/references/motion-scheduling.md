@@ -63,6 +63,8 @@ Every model adapter must preserve:
 - driver-to-response relationships, lag, damping, and settling;
 - coordination and anti-synchrony rules.
 - support state, posture invariants, behavioral reading, independent temporal layers, concurrency class, bounded variability, and reverse-sensitive loop handling.
+- composition authority and the visibility boundary; hidden support mechanics stay out of prompt text unless they become visible.
+- temporal-layer prompt exposure: explicit layers are stated, compact layers appear once, and implicit or omitted layers are not named.
 
 Adapters translate this plan into natural language suited to the destination. They do not expose JSON field names, require every candidate event, invent per-frame noise, or discard the schedule merely to shorten a prompt.
 
