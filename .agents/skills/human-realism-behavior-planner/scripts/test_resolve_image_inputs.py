@@ -6,7 +6,7 @@ import unittest
 from itertools import product
 from pathlib import Path
 
-from resolve_image_inputs import CONFIGURATIONS, resolve
+from resolve_image_inputs import CONFIGURATIONS, DEFAULT_ROOT, REPO, resolve
 
 
 class ImageInputResolutionTests(unittest.TestCase):
@@ -48,6 +48,14 @@ class ImageInputResolutionTests(unittest.TestCase):
                         encoding="utf-8",
                     )
                 self.assertEqual(resolve(self.root)["configuration"], CONFIGURATIONS[signature])
+
+    def test_default_root_is_the_planner_images_folder(self):
+        self.assertEqual(DEFAULT_ROOT, REPO / "Human Realism Behavior Planner" / "images")
+
+    def test_hidden_placeholders_are_ignored(self):
+        self.add("first_frame", "first.png")
+        (self.root / "first_frame" / ".gitkeep").touch()
+        self.assertEqual(resolve(self.root)["configuration"], "first_frame_only")
 
     def test_missing_intermediate_timing_becomes_question(self):
         self.add("intermediate_frames", "middle.png")

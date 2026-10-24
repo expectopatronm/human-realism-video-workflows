@@ -24,7 +24,7 @@ Use [references/multi-image-conditioning.md](references/multi-image-conditioning
 
 ## Inputs
 
-Require at least one accessible image and the user's scene intent. Accept a first frame, last frame, timed intermediate frames, unpinned semantic references, or any non-empty combination of those four classes. In this repository, read intent from `generation_artefacts/input/content.txt` when present and treat the four subfolders under `generation_artefacts/input/images/` as authoritative role declarations. If an image cannot be opened, an intermediate time is missing, an image role is ambiguous, or the intended action is too incomplete to establish a scene, ask for the missing decision. Otherwise proceed, recording ordinary uncertainty and reversible assumptions. Distinguish visually observed facts, explicit user wishes, and inferred staging.
+Require at least one accessible image and the user's scene intent. Accept a first frame, last frame, timed intermediate frames, unpinned semantic references, or any non-empty combination of those four classes. In this repository, treat the four subfolders under `Human Realism Behavior Planner/images/` as authoritative role declarations. Read scene intent from the user's request. If an image cannot be opened, an intermediate time is missing, an image role is ambiguous, or the intended action is too incomplete to establish a scene, ask for the missing decision. Otherwise proceed, recording ordinary uncertainty and reversible assumptions. Distinguish visually observed facts, explicit user wishes, and inferred staging.
 
 ## Workflow
 
@@ -48,7 +48,7 @@ If writing files, use scene_spec.json, scene_spec.md, and generation_prompt.txt 
 
 For the repository folder workflow, inventory image roles before visual planning:
 
-    python scripts/resolve_image_inputs.py ../../../generation_artefacts/input/images --duration 10
+    python scripts/resolve_image_inputs.py "../../../Human Realism Behavior Planner/images" --duration 10
 
 The validator checks the pre-generation specification's format and traceability. It does not evaluate generated video.
 

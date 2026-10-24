@@ -5,5 +5,4 @@ __pycache__/
 Thumbs.db
 
 .idea/
-generation_artefacts/
 output/

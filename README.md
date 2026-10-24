@@ -106,6 +106,10 @@ The planner does not generate or evaluate video.
 │   ├── Standard Template A — Master Component Rule.md
 │   ├── Standard Template B — Agent-Generated Scene Specification.md
 │   └── images/
+│       ├── first_frame/
+│       ├── intermediate_frames/
+│       ├── last_frame/
+│       └── reference_frames/
 └── .agents/skills/human-realism-behavior-planner/
     ├── SKILL.md
     ├── agents/openai.yaml
@@ -129,10 +133,19 @@ Invoke **`$human-realism-behavior-planner`** with accessible images and the inte
 
 > Use $human-realism-behavior-planner with these images. Preserve the person's identity, plan the requested action and camera behavior, ask me about any material ambiguity, and return the JSON specification, readable specification, and generation prompt.
 
-For a folder-based workflow, create the relevant role directories under `generation_artefacts/input/images/` and place the scene request in `generation_artefacts/input/content.txt`. Then inventory the media:
+Place images in the matching role directories under `Human Realism Behavior Planner/images/`. Supply scene intent in the user request, then inventory the media:
+
+| Folder | Purpose |
+| --- | --- |
+| `first_frame/` | Zero or one image defining the exact opening state. |
+| `intermediate_frames/` | Zero or more interior timeline anchors. Add `timings.json` when this folder contains images. |
+| `last_frame/` | Zero or one image defining the exact closing state. |
+| `reference_frames/` | Unpinned evidence for identity, appearance, clothing, objects, environment, lighting, style, pose, or composition. Add `roles.json` to declare roles and targets. |
+
+The folders may be empty, but at least one supported image must be present across them when the planner runs. Supported formats are PNG, JPEG, and WebP. The tracked `.gitkeep` files only preserve the empty directory structure and are ignored by the resolver.
 
 ```powershell
-python .agents/skills/human-realism-behavior-planner/scripts/resolve_image_inputs.py generation_artefacts/input/images --duration 10
+python .agents/skills/human-realism-behavior-planner/scripts/resolve_image_inputs.py "Human Realism Behavior Planner/images" --duration 10
 ```
 
 Validate a completed structured plan:
@@ -149,12 +162,12 @@ python .agents/skills/human-realism-behavior-planner/scripts/resolve_motion_sche
 
 ## Knowledge base
 
-The human-facing source folder contains:
+The three Markdown documents at the planner root are all part of its knowledge base:
 
-- G01–G29 global human realism rules
-- A 22-region head-to-toe anatomical inventory
-- The reusable master component rule template
-- The agent-generated scene specification template
-- Example images used to illustrate appearance, pose, interaction, and motion cases
+| File | Role in the planner |
+| --- | --- |
+| `Human Appearance, Anatomy & Motion Realism Standard.md` | Defines G01–G29 and the 22-region anatomical inventory. |
+| `Standard Template A — Master Component Rule.md` | Defines the reusable anatomy, appearance, motion, physics, interaction, continuity, and applicability structure for a component rule. |
+| `Standard Template B — Agent-Generated Scene Specification.md` | Defines how selected component rules are expressed for one planned scene. |
 
 The current anatomical knowledge base focuses on adult female humans. The planner applies only the rules supported by the actual subject, framing, action, and visible evidence.

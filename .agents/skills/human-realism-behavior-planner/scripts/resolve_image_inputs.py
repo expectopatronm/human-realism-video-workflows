@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 REPO = Path(__file__).resolve().parents[4]
-DEFAULT_ROOT = REPO / "generation_artefacts" / "input" / "images"
+DEFAULT_ROOT = REPO / "Human Realism Behavior Planner" / "images"
 SUPPORTED = {".png", ".jpg", ".jpeg", ".webp"}
 SEMANTIC_ROLES = {
     "subject_identity", "face_identity", "body_identity", "clothing",
@@ -47,7 +47,10 @@ def images(directory):
     if not directory.exists():
         return []
     metadata = {"timings.json", "roles.json"}
-    files = [path for path in directory.iterdir() if path.is_file() and path.name not in metadata]
+    files = [
+        path for path in directory.iterdir()
+        if path.is_file() and path.name not in metadata and not path.name.startswith(".")
+    ]
     invalid = [path.name for path in files if path.suffix.casefold() not in SUPPORTED]
     if invalid:
         raise ValueError(f"unsupported media in {directory.name}: {', '.join(sorted(invalid))}")

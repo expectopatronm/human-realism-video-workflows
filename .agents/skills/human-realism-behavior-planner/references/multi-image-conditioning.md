@@ -4,7 +4,7 @@ Resolve every supplied image into a timeline role or a semantic role before plan
 
 ## Repository inputs
 
-Read `generation_artefacts/input/content.txt` as scene intent and scan `generation_artefacts/input/images/`:
+Read scene intent from the user's request and scan `Human Realism Behavior Planner/images/`:
 
 | Folder | Planner meaning |
 | --- | --- |
